@@ -1,0 +1,20 @@
+CREATE TABLE questoes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    materia VARCHAR(50) NOT NULL,  -- Ex: 'matematica', 'fisica'
+    topico VARCHAR(100) NOT NULL,   -- Ex: 'algebra', 'mru'
+    enunciado TEXT NOT NULL,
+    dificuldade VARCHAR(20) CHECK (dificuldade IN ('facil', 'medio', 'dificil')),
+    data_criacao TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE resolucoes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    questao_id UUID REFERENCES questoes(id) ON DELETE CASCADE,
+    solucao TEXT NOT NULL,
+    explicacao TEXT,  -- Passo a passo detalhado
+    data_criacao TIMESTAMP DEFAULT NOW()
+);
+
+-- Índices para performance
+CREATE INDEX idx_questoes_materia ON questoes(materia);
+CREATE INDEX idx_resolucoes_questao ON resolucoes(questao_id);
