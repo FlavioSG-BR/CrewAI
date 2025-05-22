@@ -34,10 +34,14 @@ pip install -r requirements.txt
 
 # Execute o Flask
 python app.py
-Com Docker
-bash
+```
+
+### Com Docker
+
+```bash
 docker-compose up -d
 Acesse: http://localhost:5000
+```
 
 🧩 Estrutura do Projeto
 gerador_provas/
