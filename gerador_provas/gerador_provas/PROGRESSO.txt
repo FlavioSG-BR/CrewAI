@@ -1,7 +1,7 @@
 ================================================================================
                     GERADOR DE PROVAS - ACOMPANHAMENTO DO PROJETO
 ================================================================================
-Última atualização: 11/12/2024 (17:30)
+Última atualização: 11/12/2024 (18:30)
 ================================================================================
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -22,6 +22,7 @@
      - backend/agents/
      - backend/utils/
      - templates/
+     - static/diagramas/ (NOVO)
 
 [✅] 1.2 Configuração Docker
      - Dockerfile configurado (Python 3.11-slim)
@@ -29,6 +30,7 @@
 
 [✅] 1.3 Dependências (requirements.txt)
      - crewai, flask, sympy, rdkit, plotly, pandas, pylatex, sqlalchemy
+     - matplotlib, numpy, Pillow (NOVO - para diagramas)
 
 [✅] 1.4 Script de banco de dados
      - populate-script.txt com CREATE TABLE questoes e resolucoes
@@ -38,20 +40,26 @@
                           FASE 2: AGENTES CREWAI
 ================================================================================
 
-[✅] 2.1 AgenteFisica (fisica.py)
+[✅] 2.1 AgenteFisica (fisica.py) - EXPANDIDO
      - Agente configurado
-     - Método gerar_questao_mru() implementado
-     - Usa SymPy para cálculos
+     - Métodos: gerar_questao_mru(), gerar_questao_mruv()
+     - Métodos: gerar_questao_forca(), gerar_questao_circuito()
+     - Suporte a geração com diagramas (com_diagrama=True)
+     - Valores aleatórios para variar questões
 
-[✅] 2.2 AgenteQuimica (quimica.py)
+[✅] 2.2 AgenteQuimica (quimica.py) - EXPANDIDO
      - Agente configurado
-     - Método gerar_questao_tabela_periodica() implementado
-     - RDKit disponível para uso
+     - Base de dados de 25+ elementos químicos
+     - Métodos: gerar_questao_tabela_periodica(), gerar_questao_modelo_atomico()
+     - Métodos: gerar_questao_ligacoes(), gerar_questao_estequiometria()
+     - Suporte a geração com diagramas
 
-[✅] 2.3 AgenteMatematica (matematica.py)
+[✅] 2.3 AgenteMatematica (matematica.py) - EXPANDIDO
      - Agente configurado
-     - Método gerar_questao() implementado
-     - Suporte a álgebra e geometria
+     - Métodos: gerar_questao_algebra(), gerar_questao_algebra_2grau()
+     - Métodos: gerar_questao_geometria_plana(), gerar_questao_funcoes()
+     - Métodos: gerar_questao_probabilidade()
+     - Suporte a geração com diagramas
 
 [✅] 2.4 AgenteRevisor (revisor.py)
      - Agente configurado
@@ -62,10 +70,21 @@
      - Agente configurado
      - Método classificar() retorna tópico e dificuldade
 
-[✅] 2.6 AgenteImagens (imagens.py)
-     - Agente configurado
-     - Tool GeradorImagens implementada
-     - Método gerar_diagrama() (placeholder)
+[✅] 2.6 AgenteImagens (imagens.py) - IMPLEMENTADO COMPLETO
+     Concluído em: 11/12/2024
+     - 595 linhas de código
+     - FÍSICA:
+       * gerar_diagrama_mru() - gráficos posição/velocidade x tempo
+       * gerar_diagrama_mruv() - gráficos com aceleração
+       * gerar_diagrama_forcas() - diagrama de forças vetoriais
+       * gerar_diagrama_circuito_simples() - circuitos com Lei de Ohm
+     - MATEMÁTICA:
+       * gerar_grafico_funcao() - linear, quadrática, exponencial, seno
+       * gerar_diagrama_geometrico() - triângulo, retângulo, círculo, quadrado
+     - QUÍMICA:
+       * gerar_diagrama_atomo() - modelo de Bohr com camadas eletrônicas
+       * gerar_tabela_periodica_elemento() - card do elemento
+     - Método principal gerar_diagrama() com detecção automática
 
 [✅] 2.7 AgentePersistencia (persistencia.py)
      - Agente configurado
@@ -97,16 +116,17 @@
 ================================================================================
 
 [✅] 4.1 Templates HTML básicos
-     - index.html (seleção de matéria) - ATUALIZADO COM UI MODERNA
-     - questao.html (exibição de questão) - ATUALIZADO COM UI MODERNA
-     - resultado.html (resultado da prova) - ATUALIZADO COM UI MODERNA
+     - index.html (seleção de matéria) - UI MODERNA
+     - questao.html (exibição de questão) - UI MODERNA
+     - resultado.html (resultado da prova) - UI MODERNA
 
 [✅] 4.2 Integração app.py com main_crewai.py
      Concluído em: 11/12/2024
      - app.py agora usa main_crewai.py para geração
      - Três modos de geração: simples, completo (CrewAI), múltiplas
-     - API REST implementada (/api/questao, /api/prova)
+     - API REST implementada (/api/questao, /api/prova, /api/diagrama)
      - Fallback inteligente se CrewAI falhar
+     - Suporte a geração com diagramas
 
 [✅] 4.3 Suporte a Matemática no app.py
      Concluído em: 11/12/2024
@@ -119,15 +139,23 @@
      - Quantidade de questões (1-20)
      - Seleção de tópicos específicos por matéria
      - Modo de geração (Simples/Completo/Múltiplas)
+     - Opção de gerar com diagrama (checkbox)
 
 
 ================================================================================
                           FASE 5: FUNCIONALIDADES AVANÇADAS
 ================================================================================
 
-[⏳] 5.1 Geração real de diagramas
-     - Placeholder implementado
-     - FALTA: integrar com biblioteca de visualização (matplotlib/PIL)
+[✅] 5.1 Geração real de diagramas
+     Concluído em: 11/12/2024
+     - Matplotlib integrado para geração de gráficos
+     - NumPy para cálculos numéricos
+     - Diagramas salvos em static/diagramas/
+     - FÍSICA: MRU, MRUV, Forças, Circuitos
+     - QUÍMICA: Modelo Atômico, Elemento da Tabela Periódica
+     - MATEMÁTICA: Funções, Geometria Plana
+     - API dedicada: /api/diagrama
+     - Rota de arquivos: /diagrama/<filename>
 
 [⏳] 5.2 Exportação de provas
      - FALTA: rota para exportar PDF
@@ -141,9 +169,13 @@
      - FALTA: rota para listar questões salvas
      - FALTA: rota para buscar por tópico/dificuldade
 
-[⏳] 5.5 Configuração de ambiente
-     - FALTA: arquivo .env para credenciais
-     - FALTA: configurações de ambiente (dev/prod)
+[✅] 5.5 Configuração de ambiente
+     Concluído em: 11/12/2024
+     - env.template criado (renomear para .env)
+     - config.py com classes de configuração
+     - Suporte a development/production/testing
+     - Variáveis de ambiente para todas as configurações
+     - .gitignore atualizado
 
 
 ================================================================================
@@ -206,25 +238,26 @@
 PRIORIDADE ALTA:
 1. [✅] Integrar app.py com main_crewai.py para usar fluxo completo
 2. [✅] Adicionar matemática ao app.py
-3. [ ] Criar arquivo .env para configurações
+3. [✅] Criar arquivo .env para configurações
 
 PRIORIDADE MÉDIA:
 4. [✅] Melhorar formulário com mais opções
-5. [ ] Implementar exportação PDF (rota /exportar/pdf)
-6. [ ] Criar rota de dashboard (/dashboard)
-7. [ ] Integrar persistência no fluxo de geração
+5. [✅] Implementar geração de diagramas
+6. [ ] Implementar exportação PDF (rota /exportar/pdf)
+7. [ ] Criar rota de dashboard (/dashboard)
+8. [ ] Integrar persistência no fluxo de geração
 
 PRIORIDADE BAIXA:
-8. [ ] Testes unitários
-9. [✅] Melhorar UI/UX
-10. [ ] Documentação completa com docstrings
+9. [ ] Testes unitários
+10. [✅] Melhorar UI/UX
+11. [ ] Documentação completa com docstrings
 
 
 ================================================================================
                         ARQUIVOS MODIFICADOS (11/12/2024)
 ================================================================================
 
-CORREÇÕES DE BUGS:
+CORREÇÕES DE BUGS (Sessão 1):
 - backend/agents/matematica.py     → Reestruturado
 - backend/agents/imagens.py        → Import corrigido
 - backend/agents/revisor.py        → Ordem de definição corrigida
@@ -232,35 +265,58 @@ CORREÇÕES DE BUGS:
 - backend/main_crewai.py           → Import corrigido
 - requirements.txt                 → Duplicata removida
 
-NOVAS FUNCIONALIDADES:
+NOVAS FUNCIONALIDADES (Sessão 1):
 - backend/main_crewai.py           → Refatorado completo
-  * obter_agente_por_materia()
-  * gerar_questao_simples()
-  * gerar_prova_completa()
-  * gerar_multiplas_questoes()
-
 - app.py                           → Refatorado completo
-  * Rotas: /, /api/questao, /api/prova, /sobre
-  * Integração com main_crewai.py
-  * Suporte a 3 modos de geração
-
 - templates/index.html             → UI moderna
-  * Gradientes, ícones
-  * Seleção dinâmica de tópicos
-  * Formulário avançado
-
 - templates/questao.html           → UI moderna
-  * Exibição de tags/metadados
-  * Botões de ação (imprimir, copiar)
-
 - templates/resultado.html         → UI moderna
-  * Lista de questões numeradas
-  * Respostas com blur
-  * Impressão otimizada
+
+IMPLEMENTAÇÃO DE DIAGRAMAS (Sessão 2):
+- requirements.txt                 → Adicionado matplotlib, numpy, Pillow
+- backend/agents/imagens.py        → 595 linhas - geração completa
+  * 8 tipos de diagramas implementados
+  * Suporte a Física, Química e Matemática
+  * Detecção automática por descrição
+
+- backend/agents/fisica.py         → Expandido (244 linhas)
+  * 4 tipos de questões
+  * Integração com diagramas
+  * Valores aleatórios
+
+- backend/agents/quimica.py        → Expandido (307 linhas)
+  * 4 tipos de questões
+  * Base de 25+ elementos
+  * Integração com diagramas
+
+- backend/agents/matematica.py     → Expandido (367 linhas)
+  * 5 tipos de questões
+  * Suporte a funções e geometria
+  * Integração com diagramas
+
+- backend/main_crewai.py           → Atualizado
+  * Suporte a com_diagrama
+  * Nova função gerar_questao_com_diagrama()
+
+- app.py                           → Atualizado
+  * Rota /diagrama/<filename>
+  * API /api/diagrama
+  * Checkbox com_diagrama
 
 DOCUMENTAÇÃO:
 - README.md                        → Criado
-- PROGRESSO.txt                    → Criado e atualizado
+- PROGRESSO.txt                    → Atualizado
+
+CONFIGURAÇÃO DE AMBIENTE (Sessão 2):
+- env.template                     → Template de configuração
+  * Variáveis Flask, PostgreSQL, LLM
+  * Instruções de uso
+- config.py                        → Configuração centralizada
+  * Classes: Config, Development, Production, Testing
+  * Carregamento automático de .env
+- .gitignore                       → Ignorar arquivos sensíveis
+- templates/sobre.html             → Página sobre o projeto
+- app.py                           → Integrado com config.py
 
 
 ================================================================================
@@ -271,8 +327,36 @@ DOCUMENTAÇÃO:
 - Banco de dados PostgreSQL via Docker
 - Interface web moderna com Flask + Bootstrap 5
 - API REST disponível para integração externa
+- Geração de diagramas com Matplotlib + NumPy
 - Exportação disponível em PDF (PyLaTeX) e HTML (dashboard)
 - UI responsiva com design moderno (gradientes, ícones, animações)
+
+================================================================================
+                         DIAGRAMAS IMPLEMENTADOS
+================================================================================
+
+FÍSICA:
+├── MRU (Movimento Retilíneo Uniforme)
+│   └── Gráficos: posição×tempo, velocidade×tempo
+├── MRUV (Movimento Uniformemente Variado)
+│   └── Gráficos: posição×tempo, velocidade×tempo, aceleração×tempo
+├── Forças
+│   └── Diagrama vetorial com múltiplas forças
+└── Circuitos
+    └── Circuito simples com bateria e resistor
+
+QUÍMICA:
+├── Modelo Atômico
+│   └── Modelo de Bohr com camadas eletrônicas
+└── Elemento
+    └── Card estilo tabela periódica
+
+MATEMÁTICA:
+├── Funções
+│   └── Linear, Quadrática, Exponencial, Seno
+└── Geometria Plana
+    └── Triângulo, Retângulo, Círculo, Quadrado
+
 
 ================================================================================
                               ESTATÍSTICAS
@@ -280,12 +364,22 @@ DOCUMENTAÇÃO:
 
 Total de Fases: 6
 Fases Concluídas: 4 (Fase 1, 2, 3, 4)
-Fases Pendentes: 2 (Fase 5, 6)
+Fases Parciais: 1 (Fase 5 - 2/5 concluído)
+Fases Pendentes: 1 (Fase 6 - 1/4 concluído)
 
-Itens Concluídos: 22
-Itens Pendentes: 10
+Itens Concluídos: 25 (+1)
+Itens Pendentes: 7 (-1)
 Bugs Corrigidos: 6
 
-Progresso Geral: ~70%
+Linhas de Código Adicionadas (Sessão 2):
+- imagens.py: ~595 linhas
+- fisica.py: ~244 linhas  
+- quimica.py: ~307 linhas
+- matematica.py: ~367 linhas
+- config.py: ~90 linhas
+- sobre.html: ~150 linhas
+- Total: ~1.750 linhas novas
+
+Progresso Geral: ~78% (+3%)
 
 ================================================================================

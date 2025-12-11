@@ -1,20 +1,59 @@
-CREATE TABLE questoes (
+-- ============================================================================
+-- GERADOR DE PROVAS - SCRIPT DE POPULAÇÃO DO BANCO DE DADOS
+-- ============================================================================
+-- 
+-- ATENÇÃO: Este arquivo foi substituído por uma estrutura de migrações
+--          mais robusta e escalável!
+-- 
+-- Nova localização dos scripts:
+--   gerador_provas/database/
+--   ├── README_DATABASE.md          # Documentação completa
+--   ├── 001_schema_base.sql         # Extensões e tipos
+--   ├── 002_tabelas_dominio.sql     # Matérias, tópicos, tags
+--   ├── 003_tabelas_questoes.sql    # Questões e resoluções
+--   ├── 004_tabelas_provas.sql      # Provas e gabaritos
+--   ├── 005_tabelas_usuarios.sql    # Usuários e estatísticas
+--   ├── 006_tabelas_auditoria.sql   # Logs e auditoria
+--   ├── 007_indices.sql             # Índices de performance
+--   ├── 008_dados_iniciais.sql      # Dados seed
+--   └── migrate.py                  # Script de migração
+--
+-- COMO EXECUTAR:
+--   cd gerador_provas
+--   python database/migrate.py --all
+--
+-- OU MANUALMENTE:
+--   psql -U user -d provas_db -f database/001_schema_base.sql
+--   psql -U user -d provas_db -f database/002_tabelas_dominio.sql
+--   ... (continuar em ordem)
+--
+-- ============================================================================
+
+-- SCRIPT LEGADO (Mantido para referência)
+-- As tabelas abaixo foram expandidas e melhoradas nos novos scripts
+
+CREATE TABLE IF NOT EXISTS questoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    materia VARCHAR(50) NOT NULL,  -- Ex: 'matematica', 'fisica'
-    topico VARCHAR(100) NOT NULL,   -- Ex: 'algebra', 'mru'
+    materia VARCHAR(50) NOT NULL,
+    topico VARCHAR(100) NOT NULL,
     enunciado TEXT NOT NULL,
     dificuldade VARCHAR(20) CHECK (dificuldade IN ('facil', 'medio', 'dificil')),
     data_criacao TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE resolucoes (
+CREATE TABLE IF NOT EXISTS resolucoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     questao_id UUID REFERENCES questoes(id) ON DELETE CASCADE,
     solucao TEXT NOT NULL,
-    explicacao TEXT,  -- Passo a passo detalhado
+    explicacao TEXT,
     data_criacao TIMESTAMP DEFAULT NOW()
 );
 
--- Índices para performance
-CREATE INDEX idx_questoes_materia ON questoes(materia);
-CREATE INDEX idx_resolucoes_questao ON resolucoes(questao_id);
+-- Índices básicos
+CREATE INDEX IF NOT EXISTS idx_questoes_materia ON questoes(materia);
+CREATE INDEX IF NOT EXISTS idx_resolucoes_questao ON resolucoes(questao_id);
+
+-- ============================================================================
+-- FIM DO SCRIPT LEGADO
+-- Use os novos scripts em database/ para funcionalidades completas!
+-- ============================================================================

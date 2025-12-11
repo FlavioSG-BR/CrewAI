@@ -1,5 +1,12 @@
-﻿import os
+﻿"""
+Gerador de Provas - Aplicação Flask Principal.
+
+Este módulo define as rotas e a lógica principal da aplicação web.
+"""
+
+import os
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from config import settings
 from backend.main_crewai import (
     gerar_questao_simples,
     gerar_prova_completa,
@@ -7,12 +14,20 @@ from backend.main_crewai import (
     gerar_questao_com_diagrama
 )
 
+# Inicialização do Flask
 app = Flask(__name__, static_folder='static')
+app.config['SECRET_KEY'] = settings.SECRET_KEY
 
-# Criar diretório de diagramas se não existir
-DIAGRAMAS_DIR = os.path.join(app.static_folder, 'diagramas')
+# Criar diretórios necessários
+DIAGRAMAS_DIR = os.path.join(app.static_folder, settings.DIAGRAMAS_DIR.replace('static/', ''))
 os.makedirs(DIAGRAMAS_DIR, exist_ok=True)
+os.makedirs(settings.LOG_DIR, exist_ok=True)
+os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
 
+
+# =============================================================================
+# ROTAS PRINCIPAIS
+# =============================================================================
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -61,15 +76,53 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/sobre")
+def sobre():
+    """Página sobre o projeto."""
+    info = {
+        "versao": "1.0.0",
+        "ambiente": settings.FLASK_ENV if hasattr(settings, 'FLASK_ENV') else 'development',
+        "diagramas_dir": settings.DIAGRAMAS_DIR
+    }
+    return render_template("sobre.html", info=info)
+
+
+# =============================================================================
+# ROTAS DE ARQUIVOS ESTÁTICOS
+# =============================================================================
+
 @app.route("/diagrama/<path:filename>")
 def servir_diagrama(filename):
     """Serve arquivos de diagramas gerados."""
     return send_from_directory(DIAGRAMAS_DIR, filename)
 
 
+# =============================================================================
+# API REST
+# =============================================================================
+
 @app.route("/api/questao", methods=["POST"])
 def api_gerar_questao():
-    """API para geração de questão via JSON."""
+    """
+    API para geração de questão via JSON.
+    
+    Request Body:
+        {
+            "materia": "fisica",
+            "topico": "mru",
+            "dificuldade": "medio",
+            "modo": "simples",
+            "com_diagrama": false
+        }
+    
+    Response:
+        {
+            "enunciado": "...",
+            "resposta": "...",
+            "tipo": "...",
+            "diagrama": "path/to/image.png" (opcional)
+        }
+    """
     dados = request.get_json()
     
     if not dados:
@@ -102,7 +155,26 @@ def api_gerar_questao():
 
 @app.route("/api/prova", methods=["POST"])
 def api_gerar_prova():
-    """API para geração de múltiplas questões via JSON."""
+    """
+    API para geração de múltiplas questões via JSON.
+    
+    Request Body:
+        {
+            "materia": "fisica",
+            "topico": "mru",
+            "quantidade": 5,
+            "dificuldade": "medio",
+            "com_diagrama": false
+        }
+    
+    Response:
+        {
+            "questoes": [...],
+            "total": 5,
+            "materia": "fisica",
+            "topico": "mru"
+        }
+    """
     dados = request.get_json()
     
     if not dados:
@@ -136,7 +208,22 @@ def api_gerar_prova():
 
 @app.route("/api/diagrama", methods=["POST"])
 def api_gerar_diagrama():
-    """API para geração apenas do diagrama."""
+    """
+    API para geração apenas do diagrama.
+    
+    Request Body:
+        {
+            "materia": "fisica",
+            "topico": "mru"
+        }
+    
+    Response:
+        {
+            "sucesso": true,
+            "diagrama": "path/to/image.png",
+            "questao": {...}
+        }
+    """
     dados = request.get_json()
     
     if not dados:
@@ -164,11 +251,23 @@ def api_gerar_diagrama():
         return jsonify({"erro": str(e)}), 500
 
 
-@app.route("/sobre")
-def sobre():
-    """Página sobre o projeto."""
-    return render_template("sobre.html")
+@app.route("/api/health")
+def health_check():
+    """Endpoint de verificação de saúde da aplicação."""
+    return jsonify({
+        "status": "healthy",
+        "ambiente": settings.FLASK_ENV if hasattr(settings, 'FLASK_ENV') else 'development'
+    })
 
+
+# =============================================================================
+# PONTO DE ENTRADA
+# =============================================================================
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    debug = getattr(settings, 'DEBUG', True)
+    app.run(
+        debug=debug,
+        host=settings.HOST,
+        port=settings.PORT
+    )

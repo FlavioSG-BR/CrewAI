@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - Gerador de Provas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px 15px 0 0 !important;
+            color: white;
+        }
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .tech-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 5px;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header py-4">
+                        <h2 class="mb-0 text-center">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Sobre o Gerador de Provas
+                        </h2>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Descrição -->
+                        <div class="text-center mb-5">
+                            <h4 class="text-muted">Sistema Inteligente de Geração de Provas</h4>
+                            <p class="lead">
+                                Uma aplicação que utiliza <strong>Inteligência Artificial</strong> 
+                                para criar questões de Física, Química e Matemática automaticamente.
+                            </p>
+                        </div>
+                        
+                        <!-- Funcionalidades -->
+                        <h5 class="mb-4"><i class="bi bi-stars me-2"></i>Funcionalidades</h5>
+                        <div class="row mb-5">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="feature-icon mx-auto">
+                                    <i class="bi bi-cpu"></i>
+                                </div>
+                                <h6>Agentes de IA</h6>
+                                <p class="text-muted small">
+                                    7 agentes especializados usando CrewAI para gerar questões precisas
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="feature-icon mx-auto">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <h6>Diagramas Automáticos</h6>
+                                <p class="text-muted small">
+                                    Gráficos e visualizações gerados com Matplotlib
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="feature-icon mx-auto">
+                                    <i class="bi bi-file-pdf"></i>
+                                </div>
+                                <h6>Exportação</h6>
+                                <p class="text-muted small">
+                                    Exporte provas em PDF ou LaTeX
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Matérias -->
+                        <h5 class="mb-4"><i class="bi bi-book me-2"></i>Matérias Suportadas</h5>
+                        <div class="row mb-5">
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-body text-center">
+                                        <h1>🔬</h1>
+                                        <h5 class="card-title">Física</h5>
+                                        <p class="card-text small">
+                                            MRU, MRUV, Forças, Circuitos Elétricos
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-success">
+                                    <div class="card-body text-center">
+                                        <h1>⚗️</h1>
+                                        <h5 class="card-title">Química</h5>
+                                        <p class="card-text small">
+                                            Tabela Periódica, Modelo Atômico, Ligações, Estequiometria
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-body text-center">
+                                        <h1>📐</h1>
+                                        <h5 class="card-title">Matemática</h5>
+                                        <p class="card-text small">
+                                            Álgebra, Geometria, Funções, Probabilidade
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tecnologias -->
+                        <h5 class="mb-4"><i class="bi bi-gear me-2"></i>Tecnologias</h5>
+                        <div class="mb-5">
+                            <span class="tech-badge bg-primary text-white">Python</span>
+                            <span class="tech-badge bg-success text-white">Flask</span>
+                            <span class="tech-badge bg-info text-white">CrewAI</span>
+                            <span class="tech-badge bg-warning text-dark">SymPy</span>
+                            <span class="tech-badge bg-danger text-white">Matplotlib</span>
+                            <span class="tech-badge bg-secondary text-white">PostgreSQL</span>
+                            <span class="tech-badge bg-dark text-white">Docker</span>
+                            <span class="tech-badge bg-primary text-white">Bootstrap</span>
+                        </div>
+                        
+                        <!-- Info do Sistema -->
+                        {% if info %}
+                        <h5 class="mb-4"><i class="bi bi-hdd me-2"></i>Informações do Sistema</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Versão</th>
+                                    <td>{{ info.versao }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Ambiente</th>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if info.ambiente == 'production' else 'warning' }}">
+                                            {{ info.ambiente }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Diretório de Diagramas</th>
+                                    <td><code>{{ info.diagramas_dir }}</code></td>
+                                </tr>
+                            </table>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Botão Voltar -->
+                        <div class="text-center">
+                            <a href="/" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Voltar ao Gerador
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer text-center text-muted py-3">
+                        <small>
+                            <i class="bi bi-heart-fill text-danger me-1"></i>
+                            Desenvolvido com CrewAI e Flask
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
