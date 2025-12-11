@@ -1,20 +1,214 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Gerador de Provas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Provas - CrewAI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px 15px 0 0 !important;
+            color: white;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .form-select:focus, .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .materia-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+        .alert-danger {
+            border-radius: 10px;
+        }
+    </style>
 </head>
-<body class="container mt-5">
-    <h1 class="mb-4">Gerador de Questões</h1>
-    <form method="POST">
-        <div class="mb-3">
-            <label class="form-label">Matéria:</label>
-            <select name="materia" class="form-select">
-                <option value="fisica">Física</option>
-                <option value="quimica">Química</option>
-            </select>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header py-4">
+                        <h2 class="mb-0 text-center">
+                            <i class="bi bi-journal-bookmark-fill me-2"></i>
+                            Gerador de Provas com IA
+                        </h2>
+                        <p class="text-center mb-0 mt-2 opacity-75">
+                            Powered by CrewAI
+                        </p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if erro %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>Erro:</strong> {{ erro }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+                        
+                        <form method="POST" id="formQuestao">
+                            <!-- Matéria -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-book materia-icon"></i>Matéria
+                                </label>
+                                <select name="materia" class="form-select form-select-lg" id="selectMateria">
+                                    <option value="fisica">🔬 Física</option>
+                                    <option value="quimica">⚗️ Química</option>
+                                    <option value="matematica">📐 Matemática</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Tópico -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-tag materia-icon"></i>Tópico (opcional)
+                                </label>
+                                <select name="topico" class="form-select" id="selectTopico">
+                                    <option value="">Selecione um tópico...</option>
+                                </select>
+                                <small class="text-muted">Deixe vazio para tópico aleatório</small>
+                            </div>
+                            
+                            <!-- Dificuldade -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-speedometer2 materia-icon"></i>Dificuldade
+                                </label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="dificuldade" id="facil" value="facil">
+                                    <label class="btn btn-outline-success" for="facil">
+                                        <i class="bi bi-emoji-smile"></i> Fácil
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="dificuldade" id="medio" value="medio" checked>
+                                    <label class="btn btn-outline-warning" for="medio">
+                                        <i class="bi bi-emoji-neutral"></i> Médio
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="dificuldade" id="dificil" value="dificil">
+                                    <label class="btn btn-outline-danger" for="dificil">
+                                        <i class="bi bi-emoji-frown"></i> Difícil
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Modo de Geração -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-gear materia-icon"></i>Modo de Geração
+                                </label>
+                                <select name="modo" class="form-select" id="selectModo">
+                                    <option value="simples">⚡ Simples (mais rápido)</option>
+                                    <option value="completo">🤖 Completo com CrewAI (com revisão)</option>
+                                    <option value="multiplas">📋 Múltiplas Questões</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Quantidade (aparece só no modo múltiplas) -->
+                            <div class="mb-4" id="divQuantidade" style="display: none;">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-123 materia-icon"></i>Quantidade de Questões
+                                </label>
+                                <input type="number" name="quantidade" class="form-control" 
+                                       value="5" min="1" max="20">
+                            </div>
+                            
+                            <!-- Botão Submit -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg py-3">
+                                    <i class="bi bi-magic me-2"></i>
+                                    Gerar Questão
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center text-muted py-3">
+                        <small>
+                            <i class="bi bi-info-circle me-1"></i>
+                            Sistema desenvolvido com Flask + CrewAI
+                        </small>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Gerar Questão</button>
-    </form>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tópicos por matéria
+        const topicos = {
+            fisica: [
+                {value: "mru", text: "🚗 Movimento Retilíneo Uniforme (MRU)"},
+                {value: "mruv", text: "🚀 Movimento Retilíneo Uniformemente Variado (MRUV)"},
+                {value: "termodinamica", text: "🌡️ Termodinâmica"},
+                {value: "ondulatoria", text: "🌊 Ondulatória"},
+                {value: "optica", text: "💡 Óptica"},
+                {value: "eletricidade", text: "⚡ Eletricidade"}
+            ],
+            quimica: [
+                {value: "tabela_periodica", text: "📊 Tabela Periódica"},
+                {value: "ligacoes", text: "🔗 Ligações Químicas"},
+                {value: "reacoes", text: "⚗️ Reações Químicas"},
+                {value: "estequiometria", text: "⚖️ Estequiometria"},
+                {value: "solucoes", text: "💧 Soluções"},
+                {value: "organica", text: "🧬 Química Orgânica"}
+            ],
+            matematica: [
+                {value: "algebra", text: "📐 Álgebra"},
+                {value: "geometria", text: "📏 Geometria"},
+                {value: "funcoes", text: "📈 Funções"},
+                {value: "trigonometria", text: "📐 Trigonometria"},
+                {value: "probabilidade", text: "🎲 Probabilidade"},
+                {value: "matrizes", text: "🔢 Matrizes"}
+            ]
+        };
+        
+        // Atualiza tópicos quando muda a matéria
+        document.getElementById('selectMateria').addEventListener('change', function() {
+            const materia = this.value;
+            const selectTopico = document.getElementById('selectTopico');
+            
+            selectTopico.innerHTML = '<option value="">Selecione um tópico...</option>';
+            
+            if (topicos[materia]) {
+                topicos[materia].forEach(function(topico) {
+                    const option = document.createElement('option');
+                    option.value = topico.value;
+                    option.textContent = topico.text;
+                    selectTopico.appendChild(option);
+                });
+            }
+        });
+        
+        // Mostra/esconde quantidade quando muda o modo
+        document.getElementById('selectModo').addEventListener('change', function() {
+            const divQuantidade = document.getElementById('divQuantidade');
+            divQuantidade.style.display = this.value === 'multiplas' ? 'block' : 'none';
+        });
+        
+        // Inicializa tópicos
+        document.getElementById('selectMateria').dispatchEvent(new Event('change'));
+    </script>
 </body>
 </html>
