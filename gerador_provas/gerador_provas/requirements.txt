@@ -1,15 +1,48 @@
-﻿crewai>=0.1.0
+﻿# ============================================================================
+# GERADOR DE PROVAS - DEPENDÊNCIAS
+# ============================================================================
+
+# Core
+crewai>=0.1.0
 flask>=2.0.0
 python-dotenv>=0.19.0
-sympy>=1.12          # Validação matemática
-reportlab>=4.0       # Geração de PDF
-pylatex>=1.4.0       # Exportação LaTeX
-plotly>=5.18.0       # Gráficos no dashboard
-pandas>=2.0.0        # Manipulação de dados
-rdkit>=2023.03.3     # Química molecular
+
+# Matemática e Validação
+sympy>=1.12
+
+# Geração de Documentos
+reportlab>=4.0
+pylatex>=1.4.0
+
+# Visualização
+plotly>=5.18.0
+matplotlib>=3.8.0
+
+# Dados
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Química
+rdkit>=2023.03.3
+
+# UI
 flask-bootstrap>=3.3.7.1
-sqlalchemy>=2.0.0    # ORM para PostgreSQL
-psycopg2-binary>=2.9.0  # Driver PostgreSQL
-matplotlib>=3.8.0    # Geração de diagramas
-numpy>=1.24.0        # Cálculos numéricos
-Pillow>=10.0.0       # Manipulação de imagens
+
+# Banco de Dados
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+# Imagens
+Pillow>=10.0.0
+
+# Testes
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# ============================================================================
+# INSTALAÇÃO:
+#   pip install -r requirements.txt
+#
+# TESTES:
+#   pytest tests/ -v
+# ============================================================================
