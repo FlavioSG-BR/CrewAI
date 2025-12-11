@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerar Prova - Gerador de Provas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --accent-color: #e94560;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+        
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem;
+        }
+        
+        .form-section {
+            padding: 2rem;
+        }
+        
+        .topic-checkbox {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .topic-checkbox:hover {
+            border-color: var(--accent-color);
+            background: #fff5f7;
+        }
+        
+        .topic-checkbox input[type="checkbox"] {
+            display: none;
+        }
+        
+        .topic-checkbox.selected {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+        
+        .topic-category {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .topic-category h6 {
+            color: #0f3460;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .tipo-questao-card {
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tipo-questao-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+        }
+        
+        .tipo-questao-card.selected {
+            border-color: var(--accent-color);
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 100%);
+        }
+        
+        .tipo-questao-card input[type="radio"] {
+            display: none;
+        }
+        
+        .tipo-questao-card i {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-gerar {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #d63352 100%);
+            border: none;
+            color: white;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gerar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+            color: white;
+        }
+        
+        .materia-select {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .materia-option {
+            flex: 1;
+            min-width: 150px;
+            padding: 1.5rem;
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .materia-option:hover {
+            border-color: var(--accent-color);
+        }
+        
+        .materia-option.selected {
+            border-color: var(--accent-color);
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 100%);
+        }
+        
+        .materia-option input[type="radio"] {
+            display: none;
+        }
+        
+        .materia-option i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .materia-option.matematica i { color: #3498db; }
+        .materia-option.fisica i { color: #e74c3c; }
+        .materia-option.quimica i { color: #2ecc71; }
+        
+        .dificuldade-slider {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .alert-danger {
+            border-radius: 15px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-card">
+                    <!-- Header -->
+                    <div class="header-section text-center">
+                        <h1 class="mb-2">
+                            <i class="bi bi-file-earmark-text"></i>
+                            Gerador de Provas
+                        </h1>
+                        <p class="mb-0 opacity-75">
+                            Crie provas personalizadas com questões dissertativas ou múltipla escolha
+                        </p>
+                    </div>
+                    
+                    <!-- Form -->
+                    <div class="form-section">
+                        {% if erro %}
+                        <div class="alert alert-danger mb-4">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            {{ erro }}
+                        </div>
+                        {% endif %}
+                        
+                        <form method="POST" action="/prova">
+                            <!-- Informações Básicas -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-info-circle"></i> Informações da Prova
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Título da Prova</label>
+                                        <input type="text" class="form-control form-control-lg" 
+                                               name="titulo" placeholder="Ex: Prova de Álgebra - 1º Bimestre"
+                                               required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Instituição (opcional)</label>
+                                        <input type="text" class="form-control form-control-lg" 
+                                               name="instituicao" placeholder="Ex: Colégio XYZ">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Seleção de Matéria -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-book"></i> Selecione a Matéria
+                                </h5>
+                                <div class="materia-select">
+                                    <label class="materia-option matematica">
+                                        <input type="radio" name="materia" value="matematica" checked>
+                                        <i class="bi bi-calculator d-block"></i>
+                                        <strong>Matemática</strong>
+                                    </label>
+                                    <label class="materia-option fisica">
+                                        <input type="radio" name="materia" value="fisica">
+                                        <i class="bi bi-lightning d-block"></i>
+                                        <strong>Física</strong>
+                                    </label>
+                                    <label class="materia-option quimica">
+                                        <input type="radio" name="materia" value="quimica">
+                                        <i class="bi bi-droplet d-block"></i>
+                                        <strong>Química</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Seleção de Tópicos -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-list-check"></i> Selecione os Tópicos
+                                    <small class="text-muted">(selecione um ou mais)</small>
+                                </h5>
+                                
+                                <!-- Tópicos de Matemática -->
+                                <div id="topicos-matematica" class="topicos-container">
+                                    {% if topicos and topicos.matematica %}
+                                    {% for categoria, lista in topicos.matematica.items() %}
+                                    <div class="topic-category">
+                                        <h6><i class="bi bi-folder"></i> {{ categoria|title }}</h6>
+                                        <div class="d-flex flex-wrap">
+                                            {% for topico in lista %}
+                                            <label class="topic-checkbox">
+                                                <input type="checkbox" name="topicos" value="{{ topico }}">
+                                                <span>{{ topico|replace('_', ' ')|title }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Tópicos de Física -->
+                                <div id="topicos-fisica" class="topicos-container d-none">
+                                    {% if topicos and topicos.fisica %}
+                                    {% for categoria, lista in topicos.fisica.items() %}
+                                    <div class="topic-category">
+                                        <h6><i class="bi bi-folder"></i> {{ categoria|title }}</h6>
+                                        <div class="d-flex flex-wrap">
+                                            {% for topico in lista %}
+                                            <label class="topic-checkbox">
+                                                <input type="checkbox" name="topicos" value="{{ topico }}">
+                                                <span>{{ topico|replace('_', ' ')|title }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Tópicos de Química -->
+                                <div id="topicos-quimica" class="topicos-container d-none">
+                                    {% if topicos and topicos.quimica %}
+                                    {% for categoria, lista in topicos.quimica.items() %}
+                                    <div class="topic-category">
+                                        <h6><i class="bi bi-folder"></i> {{ categoria|title }}</h6>
+                                        <div class="d-flex flex-wrap">
+                                            {% for topico in lista %}
+                                            <label class="topic-checkbox">
+                                                <input type="checkbox" name="topicos" value="{{ topico }}">
+                                                <span>{{ topico|replace('_', ' ')|title }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Tipo de Questão -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-question-circle"></i> Tipo de Questão
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="tipo-questao-card selected w-100">
+                                            <input type="radio" name="tipo_questao" value="dissertativa" checked>
+                                            <i class="bi bi-pencil-square d-block"></i>
+                                            <strong>Dissertativa</strong>
+                                            <p class="text-muted small mb-0">Respostas escritas</p>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="tipo-questao-card w-100">
+                                            <input type="radio" name="tipo_questao" value="multipla_escolha">
+                                            <i class="bi bi-ui-radios d-block"></i>
+                                            <strong>Múltipla Escolha</strong>
+                                            <p class="text-muted small mb-0">5 alternativas (A-E)</p>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="tipo-questao-card w-100">
+                                            <input type="radio" name="tipo_questao" value="mista">
+                                            <i class="bi bi-grid-3x2 d-block"></i>
+                                            <strong>Mista</strong>
+                                            <p class="text-muted small mb-0">Ambos os tipos</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Configurações -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-gear"></i> Configurações
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Número de Questões</label>
+                                        <select class="form-select form-select-lg" name="num_questoes">
+                                            <option value="5">5 questões</option>
+                                            <option value="10" selected>10 questões</option>
+                                            <option value="15">15 questões</option>
+                                            <option value="20">20 questões</option>
+                                            <option value="30">30 questões</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Dificuldade</label>
+                                        <select class="form-select form-select-lg" name="dificuldade">
+                                            <option value="facil">Fácil</option>
+                                            <option value="medio" selected>Médio</option>
+                                            <option value="dificil">Difícil</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Tempo Limite (minutos)</label>
+                                        <input type="number" class="form-control form-control-lg" 
+                                               name="tempo_limite" placeholder="Ex: 120" min="30" max="300">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="com_diagramas" name="com_diagramas">
+                                    <label class="form-check-label" for="com_diagramas">
+                                        Incluir diagramas/gráficos nas questões
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Instruções Personalizadas -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-card-text"></i> Instruções (opcional)
+                                </h5>
+                                <textarea class="form-control" name="instrucoes" rows="4" 
+                                          placeholder="Digite as instruções da prova (uma por linha)...
+Ex:
+Leia atentamente cada questão antes de responder.
+Use caneta azul ou preta.
+Não é permitido uso de calculadora."></textarea>
+                            </div>
+                            
+                            <!-- Botão Gerar -->
+                            <div class="text-center mt-5">
+                                <button type="submit" class="btn btn-gerar">
+                                    <i class="bi bi-magic"></i> Gerar Prova
+                                </button>
+                                <p class="text-muted mt-3">
+                                    <i class="bi bi-info-circle"></i>
+                                    A prova e o gabarito serão gerados em PDF formatado ABNT
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Link para voltar -->
+                <div class="text-center mt-4">
+                    <a href="/" class="text-white text-decoration-none">
+                        <i class="bi bi-arrow-left"></i> Voltar para página inicial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Alternar seleção de matéria
+        document.querySelectorAll('.materia-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove seleção anterior
+                document.querySelectorAll('.materia-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Mostrar tópicos correspondentes
+                const materia = this.querySelector('input').value;
+                document.querySelectorAll('.topicos-container').forEach(c => c.classList.add('d-none'));
+                document.getElementById('topicos-' + materia).classList.remove('d-none');
+                
+                // Limpar seleções de tópicos
+                document.querySelectorAll('.topic-checkbox').forEach(c => {
+                    c.classList.remove('selected');
+                    c.querySelector('input').checked = false;
+                });
+            });
+        });
+        
+        // Alternar seleção de tipo de questão
+        document.querySelectorAll('.tipo-questao-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.tipo-questao-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        
+        // Alternar seleção de tópicos
+        document.querySelectorAll('.topic-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                const input = this.querySelector('input');
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+            });
+        });
+        
+        // Inicializar seleção de matéria
+        document.querySelector('.materia-option').classList.add('selected');
+    </script>
+</body>
+</html>
+

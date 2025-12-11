@@ -1,7 +1,7 @@
 ================================================================================
                     GERADOR DE PROVAS - ACOMPANHAMENTO DO PROJETO
 ================================================================================
-Última atualização: 11/12/2024 (18:30)
+Última atualização: 11/12/2024 (20:00)
 ================================================================================
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -21,8 +21,12 @@
 [✅] 1.1 Estrutura de diretórios criada
      - backend/agents/
      - backend/utils/
+     - backend/services/ (NOVO)
+     - backend/repositories/ (NOVO)
      - templates/
-     - static/diagramas/ (NOVO)
+     - static/diagramas/
+     - tests/ (NOVO)
+     - database/ (NOVO)
 
 [✅] 1.2 Configuração Docker
      - Dockerfile configurado (Python 3.11-slim)
@@ -30,10 +34,14 @@
 
 [✅] 1.3 Dependências (requirements.txt)
      - crewai, flask, sympy, rdkit, plotly, pandas, pylatex, sqlalchemy
-     - matplotlib, numpy, Pillow (NOVO - para diagramas)
+     - matplotlib, numpy, Pillow, pytest
 
-[✅] 1.4 Script de banco de dados
-     - populate-script.txt com CREATE TABLE questoes e resolucoes
+[✅] 1.4 Banco de dados estruturado
+     Concluído em: 11/12/2024
+     - 8 scripts de migração SQL
+     - 26 tabelas organizadas em schemas
+     - Sistema de migrações com versionamento
+     - Suporte a soft delete e auditoria
 
 
 ================================================================================
@@ -71,25 +79,14 @@
      - Método classificar() retorna tópico e dificuldade
 
 [✅] 2.6 AgenteImagens (imagens.py) - IMPLEMENTADO COMPLETO
-     Concluído em: 11/12/2024
      - 595 linhas de código
-     - FÍSICA:
-       * gerar_diagrama_mru() - gráficos posição/velocidade x tempo
-       * gerar_diagrama_mruv() - gráficos com aceleração
-       * gerar_diagrama_forcas() - diagrama de forças vetoriais
-       * gerar_diagrama_circuito_simples() - circuitos com Lei de Ohm
-     - MATEMÁTICA:
-       * gerar_grafico_funcao() - linear, quadrática, exponencial, seno
-       * gerar_diagrama_geometrico() - triângulo, retângulo, círculo, quadrado
-     - QUÍMICA:
-       * gerar_diagrama_atomo() - modelo de Bohr com camadas eletrônicas
-       * gerar_tabela_periodica_elemento() - card do elemento
-     - Método principal gerar_diagrama() com detecção automática
+     - FÍSICA: MRU, MRUV, Forças, Circuitos
+     - MATEMÁTICA: Funções, Geometria Plana
+     - QUÍMICA: Modelo Atômico, Elemento
 
 [✅] 2.7 AgentePersistencia (persistencia.py)
      - Agente configurado
      - Métodos salvar_questao() e salvar_resolucao()
-     - Método _calcular_resposta_esperada() implementado
      - Método validar_e_salvar() implementado
 
 
@@ -97,49 +94,56 @@
                           FASE 3: UTILITÁRIOS
 ================================================================================
 
-[✅] 3.1 Logger (logger.py)
-     - Configuração de logging por data
-     - Função log_questao_gerada()
+[✅] 3.1 Logger (logger.py) - REFATORADO
+     - Usa configuração centralizada (config.py)
+     - Funções: get_logger(), log_questao_gerada(), log_erro()
 
 [✅] 3.2 Validator (validator.py)
      - Função validar_resposta() usando SymPy
 
-[✅] 3.3 LaTeX Generator (latex_generator.py)
-     - Função gerar_pdf() usando PyLaTeX
+[✅] 3.3 LaTeX Generator (latex_generator.py) - REFATORADO
+     - Usa configuração centralizada
+     - Função gerar_pdf() com formatação básica
 
-[✅] 3.4 Dashboard (dashboard.py)
-     - Função gerar_grafico_acertos() usando Plotly
+[✅] 3.4 Prova PDF Generator (prova_pdf_generator.py) - NOVO
+     Concluído em: 11/12/2024
+     - Formatação ABNT (Times 12pt, margens corretas)
+     - Suporte a dissertativas e múltipla escolha
+     - Geração de prova do aluno (sem respostas)
+     - Geração de gabarito (com respostas detalhadas)
+     - Tabela resumo do gabarito
+     - Cabeçalho e rodapé personalizáveis
+
+[✅] 3.5 Dashboard (dashboard.py) - REFATORADO
+     - Usa configuração centralizada
+     - Função gerar_dashboard_completo()
 
 
 ================================================================================
                           FASE 4: INTERFACE WEB
 ================================================================================
 
-[✅] 4.1 Templates HTML básicos
+[✅] 4.1 Templates HTML
      - index.html (seleção de matéria) - UI MODERNA
      - questao.html (exibição de questão) - UI MODERNA
      - resultado.html (resultado da prova) - UI MODERNA
+     - prova_form.html (formulário de prova) - NOVO
+     - prova_gerada.html (resultado da prova) - NOVO
+     - sobre.html
 
 [✅] 4.2 Integração app.py com main_crewai.py
-     Concluído em: 11/12/2024
-     - app.py agora usa main_crewai.py para geração
      - Três modos de geração: simples, completo (CrewAI), múltiplas
-     - API REST implementada (/api/questao, /api/prova, /api/diagrama)
-     - Fallback inteligente se CrewAI falhar
-     - Suporte a geração com diagramas
+     - API REST implementada
 
-[✅] 4.3 Suporte a Matemática no app.py
+[✅] 4.3 Geração de Provas Completas
      Concluído em: 11/12/2024
-     - Física, Química e Matemática disponíveis
-     - Tópicos específicos por matéria no formulário
-
-[✅] 4.4 Formulário avançado
-     Concluído em: 11/12/2024
-     - Seleção de dificuldade (Fácil/Médio/Difícil)
-     - Quantidade de questões (1-20)
-     - Seleção de tópicos específicos por matéria
-     - Modo de geração (Simples/Completo/Múltiplas)
-     - Opção de gerar com diagrama (checkbox)
+     - Rota /prova para formulário de geração
+     - Seleção de múltiplos tópicos específicos
+     - Questões dissertativas ou múltipla escolha
+     - Configuração de dificuldade e quantidade
+     - Geração de PDF formatado ABNT
+     - Prova espelho (gabarito) automático
+     - Download de ambos os PDFs
 
 
 ================================================================================
@@ -147,65 +151,78 @@
 ================================================================================
 
 [✅] 5.1 Geração real de diagramas
-     Concluído em: 11/12/2024
-     - Matplotlib integrado para geração de gráficos
-     - NumPy para cálculos numéricos
-     - Diagramas salvos em static/diagramas/
+     - Matplotlib integrado
      - FÍSICA: MRU, MRUV, Forças, Circuitos
-     - QUÍMICA: Modelo Atômico, Elemento da Tabela Periódica
+     - QUÍMICA: Modelo Atômico, Elemento
      - MATEMÁTICA: Funções, Geometria Plana
-     - API dedicada: /api/diagrama
-     - Rota de arquivos: /diagrama/<filename>
 
-[⏳] 5.2 Exportação de provas
-     - FALTA: rota para exportar PDF
-     - FALTA: rota para exportar LaTeX
+[✅] 5.2 Exportação de provas - COMPLETO
+     Concluído em: 11/12/2024
+     - PDF formatado ABNT
+     - Prova do aluno (sem respostas)
+     - Gabarito (com respostas detalhadas)
+     - Download via rota /download/pdf/
 
 [⏳] 5.3 Dashboard de métricas
      - FALTA: rota /dashboard
-     - FALTA: integrar gerar_grafico_acertos()
+     - Função gerar_dashboard_completo() pronta
 
-[⏳] 5.4 Banco de questões
-     - FALTA: rota para listar questões salvas
-     - FALTA: rota para buscar por tópico/dificuldade
+[✅] 5.4 Banco de questões estruturado
+     Concluído em: 11/12/2024
+     - Repositórios para questões e provas
+     - Busca por tópico/dificuldade
+     - API /api/provas
 
 [✅] 5.5 Configuração de ambiente
-     Concluído em: 11/12/2024
-     - env.template criado (renomear para .env)
+     - env.template criado
      - config.py com classes de configuração
-     - Suporte a development/production/testing
-     - Variáveis de ambiente para todas as configurações
-     - .gitignore atualizado
 
-
-================================================================================
-                          FASE 6: MELHORIAS E TESTES
-================================================================================
-
-[⏳] 6.1 Testes unitários
-     - FALTA: testes para agentes
-     - FALTA: testes para utilitários
-     - FALTA: testes para rotas
-
-[⏳] 6.2 Validações avançadas no revisor
-     - FALTA: verificação gramatical
-     - FALTA: verificação de coerência matemática
-     - FALTA: detecção de questões duplicadas
-
-[✅] 6.3 UI/UX melhorada
+[✅] 5.6 Geração de Alternativas - NOVO
      Concluído em: 11/12/2024
-     - Design moderno com gradientes e ícones
-     - Bootstrap Icons integrado
-     - Interface responsiva
-     - Tópicos dinâmicos por matéria (JavaScript)
-     - Botão de copiar e imprimir
-     - Respostas com blur (reveladas ao passar o mouse)
+     - AlternativasGenerator para múltipla escolha
+     - Distratores para respostas numéricas
+     - Distratores para fórmulas
+     - Distratores para elementos químicos
+     - 5 alternativas (A-E) com uma correta
 
-[⏳] 6.4 Documentação
-     - README.md criado
-     - PROGRESSO.txt criado
-     - FALTA: docstrings completas
-     - FALTA: exemplos de uso detalhados
+
+================================================================================
+                          FASE 6: ARQUITETURA E TESTES
+================================================================================
+
+[✅] 6.1 Camada de Serviços - NOVO
+     Concluído em: 11/12/2024
+     - QuestaoService: coordena geração + persistência
+     - ProvaService: criação de provas completas
+     - ConfiguracaoProva: dataclass para parâmetros
+     - AlternativasGenerator: múltipla escolha
+
+[✅] 6.2 Camada de Repositórios - NOVO
+     Concluído em: 11/12/2024
+     - BaseRepository: CRUD genérico
+     - QuestaoRepository: operações com questões
+     - ProvaRepository: operações com provas
+     - Conexão centralizada via config
+
+[✅] 6.3 Arquivos __init__.py - NOVO
+     Concluído em: 11/12/2024
+     - backend/__init__.py
+     - backend/agents/__init__.py
+     - backend/utils/__init__.py
+     - backend/services/__init__.py
+     - backend/repositories/__init__.py
+     - tests/__init__.py
+
+[✅] 6.4 Estrutura de Testes - NOVO
+     Concluído em: 11/12/2024
+     - tests/test_agents.py (~260 linhas)
+     - tests/test_services.py (~170 linhas)
+     - tests/test_utils.py (~140 linhas)
+     - pytest.ini configurado
+
+[⏳] 6.5 Validações avançadas no revisor
+     - FALTA: verificação gramatical
+     - FALTA: detecção de questões duplicadas
 
 
 ================================================================================
@@ -213,149 +230,108 @@
 ================================================================================
 
 [✅] BUG-001: matematica.py - import e função fora da classe
-     Corrigido em: 11/12/2024
-
 [✅] BUG-002: imagens.py - Tool não importado
-     Corrigido em: 11/12/2024
-
 [✅] BUG-003: revisor.py - _tool_validacao usado antes de definido
-     Corrigido em: 11/12/2024
-
 [✅] BUG-004: main_crewai.py - Task não importado
-     Corrigido em: 11/12/2024
-
 [✅] BUG-005: persistencia.py - método _calcular_resposta_esperada não definido
-     Corrigido em: 11/12/2024
-
 [✅] BUG-006: requirements.txt - sympy duplicado
-     Corrigido em: 11/12/2024
+[✅] BUG-007: URLs hardcoded no código (persistencia, dashboard, etc.)
+[✅] BUG-008: Falta de integração agentes → banco de dados
 
 
 ================================================================================
-                            PRÓXIMOS PASSOS SUGERIDOS
+                         NOVA FUNCIONALIDADE: GERAÇÃO DE PROVAS
 ================================================================================
 
-PRIORIDADE ALTA:
-1. [✅] Integrar app.py com main_crewai.py para usar fluxo completo
-2. [✅] Adicionar matemática ao app.py
-3. [✅] Criar arquivo .env para configurações
+Concluído em: 11/12/2024
 
-PRIORIDADE MÉDIA:
-4. [✅] Melhorar formulário com mais opções
-5. [✅] Implementar geração de diagramas
-6. [ ] Implementar exportação PDF (rota /exportar/pdf)
-7. [ ] Criar rota de dashboard (/dashboard)
-8. [ ] Integrar persistência no fluxo de geração
+CARACTERÍSTICAS:
+├── Seleção de Tópicos
+│   ├── Múltiplos tópicos por prova
+│   ├── Organização por categorias
+│   └── Tópicos específicos por matéria
+│
+├── Tipos de Questão
+│   ├── Dissertativa (resposta escrita)
+│   ├── Múltipla Escolha (5 alternativas A-E)
+│   └── Mista (ambos os tipos)
+│
+├── Gerador de Alternativas
+│   ├── Distratores numéricos (variações matemáticas)
+│   ├── Distratores de fórmulas (erros comuns)
+│   ├── Distratores de unidades
+│   ├── Distratores de elementos químicos
+│   └── Embaralhamento automático
+│
+├── Formatação ABNT
+│   ├── Fonte Times New Roman 12pt
+│   ├── Margens: superior/esquerda 3cm, inferior/direita 2cm
+│   ├── Espaçamento 1,5
+│   ├── Cabeçalho e rodapé
+│   └── Numeração de páginas
+│
+├── Prova do Aluno
+│   ├── Campos para nome/turma/data
+│   ├── Instruções personalizáveis
+│   ├── Questões numeradas com pontuação
+│   ├── Espaço para respostas dissertativas
+│   └── Alternativas formatadas (A-E)
+│
+└── Gabarito (Prova Espelho)
+    ├── Tabela resumo das respostas
+    ├── Respostas detalhadas
+    ├── Explicações quando disponíveis
+    └── Marcação da alternativa correta
 
-PRIORIDADE BAIXA:
-9. [ ] Testes unitários
-10. [✅] Melhorar UI/UX
-11. [ ] Documentação completa com docstrings
-
-
-================================================================================
-                        ARQUIVOS MODIFICADOS (11/12/2024)
-================================================================================
-
-CORREÇÕES DE BUGS (Sessão 1):
-- backend/agents/matematica.py     → Reestruturado
-- backend/agents/imagens.py        → Import corrigido
-- backend/agents/revisor.py        → Ordem de definição corrigida
-- backend/agents/persistencia.py   → Método implementado
-- backend/main_crewai.py           → Import corrigido
-- requirements.txt                 → Duplicata removida
-
-NOVAS FUNCIONALIDADES (Sessão 1):
-- backend/main_crewai.py           → Refatorado completo
-- app.py                           → Refatorado completo
-- templates/index.html             → UI moderna
-- templates/questao.html           → UI moderna
-- templates/resultado.html         → UI moderna
-
-IMPLEMENTAÇÃO DE DIAGRAMAS (Sessão 2):
-- requirements.txt                 → Adicionado matplotlib, numpy, Pillow
-- backend/agents/imagens.py        → 595 linhas - geração completa
-  * 8 tipos de diagramas implementados
-  * Suporte a Física, Química e Matemática
-  * Detecção automática por descrição
-
-- backend/agents/fisica.py         → Expandido (244 linhas)
-  * 4 tipos de questões
-  * Integração com diagramas
-  * Valores aleatórios
-
-- backend/agents/quimica.py        → Expandido (307 linhas)
-  * 4 tipos de questões
-  * Base de 25+ elementos
-  * Integração com diagramas
-
-- backend/agents/matematica.py     → Expandido (367 linhas)
-  * 5 tipos de questões
-  * Suporte a funções e geometria
-  * Integração com diagramas
-
-- backend/main_crewai.py           → Atualizado
-  * Suporte a com_diagrama
-  * Nova função gerar_questao_com_diagrama()
-
-- app.py                           → Atualizado
-  * Rota /diagrama/<filename>
-  * API /api/diagrama
-  * Checkbox com_diagrama
-
-DOCUMENTAÇÃO:
-- README.md                        → Criado
-- PROGRESSO.txt                    → Atualizado
-
-CONFIGURAÇÃO DE AMBIENTE (Sessão 2):
-- env.template                     → Template de configuração
-  * Variáveis Flask, PostgreSQL, LLM
-  * Instruções de uso
-- config.py                        → Configuração centralizada
-  * Classes: Config, Development, Production, Testing
-  * Carregamento automático de .env
-- .gitignore                       → Ignorar arquivos sensíveis
-- templates/sobre.html             → Página sobre o projeto
-- app.py                           → Integrado com config.py
+ROTAS:
+- GET/POST /prova → Formulário e geração
+- GET /download/pdf/<filename> → Download dos PDFs
+- POST /api/prova → API REST para geração
+- GET /api/prova/topicos → Lista tópicos disponíveis
+- GET /api/provas → Lista provas geradas
 
 
 ================================================================================
-                              NOTAS ADICIONAIS
+                        ARQUIVOS CRIADOS/MODIFICADOS (Sessão 3)
 ================================================================================
 
-- O projeto usa CrewAI para orquestração de agentes de IA
-- Banco de dados PostgreSQL via Docker
-- Interface web moderna com Flask + Bootstrap 5
-- API REST disponível para integração externa
-- Geração de diagramas com Matplotlib + NumPy
-- Exportação disponível em PDF (PyLaTeX) e HTML (dashboard)
-- UI responsiva com design moderno (gradientes, ícones, animações)
+NOVOS ARQUIVOS:
+- backend/services/alternativas_generator.py (~260 linhas)
+  * Gerador de alternativas para múltipla escolha
+  * Estratégias por tipo de resposta
 
-================================================================================
-                         DIAGRAMAS IMPLEMENTADOS
-================================================================================
+- backend/services/prova_service.py (~315 linhas)
+  * ProvaService: orquestração de geração
+  * ConfiguracaoProva: dataclass
+  * Integração com PDF generator
 
-FÍSICA:
-├── MRU (Movimento Retilíneo Uniforme)
-│   └── Gráficos: posição×tempo, velocidade×tempo
-├── MRUV (Movimento Uniformemente Variado)
-│   └── Gráficos: posição×tempo, velocidade×tempo, aceleração×tempo
-├── Forças
-│   └── Diagrama vetorial com múltiplas forças
-└── Circuitos
-    └── Circuito simples com bateria e resistor
+- backend/utils/prova_pdf_generator.py (~400 linhas)
+  * Formatação ABNT
+  * Prova + Gabarito
+  * PyLaTeX avançado
 
-QUÍMICA:
-├── Modelo Atômico
-│   └── Modelo de Bohr com camadas eletrônicas
-└── Elemento
-    └── Card estilo tabela periódica
+- templates/prova_form.html (~350 linhas)
+  * Formulário moderno
+  * Seleção de tópicos interativa
+  * Tipo de questão (cards)
 
-MATEMÁTICA:
-├── Funções
-│   └── Linear, Quadrática, Exponencial, Seno
-└── Geometria Plana
-    └── Triângulo, Retângulo, Círculo, Quadrado
+- templates/prova_gerada.html (~250 linhas)
+  * Resultado com downloads
+  * Preview das questões
+  * Respostas com blur
+
+- backend/repositories/base.py (~100 linhas)
+- backend/repositories/questao_repository.py (~200 linhas)
+- backend/repositories/prova_repository.py (~150 linhas)
+
+- tests/test_agents.py (~260 linhas)
+- tests/test_services.py (~170 linhas)
+- tests/test_utils.py (~140 linhas)
+
+ARQUIVOS MODIFICADOS:
+- app.py → Novas rotas /prova e APIs
+- backend/services/__init__.py → Novos exports
+- backend/utils/__init__.py → Novo export ProvaPDFGenerator
 
 
 ================================================================================
@@ -363,23 +339,87 @@ MATEMÁTICA:
 ================================================================================
 
 Total de Fases: 6
-Fases Concluídas: 4 (Fase 1, 2, 3, 4)
-Fases Parciais: 1 (Fase 5 - 2/5 concluído)
-Fases Pendentes: 1 (Fase 6 - 1/4 concluído)
+Fases Concluídas: 5 (Fase 1, 2, 3, 4, 5)
+Fases Parciais: 1 (Fase 6 - 4/5 concluído)
 
-Itens Concluídos: 25 (+1)
-Itens Pendentes: 7 (-1)
-Bugs Corrigidos: 6
+Itens Concluídos: 35 (+10)
+Itens Pendentes: 3 (-4)
+Bugs Corrigidos: 8
 
-Linhas de Código Adicionadas (Sessão 2):
-- imagens.py: ~595 linhas
-- fisica.py: ~244 linhas  
-- quimica.py: ~307 linhas
-- matematica.py: ~367 linhas
-- config.py: ~90 linhas
-- sobre.html: ~150 linhas
-- Total: ~1.750 linhas novas
+Linhas de Código Adicionadas (Sessão 3):
+- alternativas_generator.py: ~260 linhas
+- prova_service.py: ~315 linhas
+- prova_pdf_generator.py: ~400 linhas
+- prova_form.html: ~350 linhas
+- prova_gerada.html: ~250 linhas
+- repositories/*: ~450 linhas
+- tests/*: ~570 linhas
+- Total Sessão 3: ~2.600 linhas novas
 
-Progresso Geral: ~78% (+3%)
+Linhas de Código Total:
+- Sessão 1: ~1.000 linhas
+- Sessão 2: ~1.750 linhas
+- Sessão 3: ~2.600 linhas
+- TOTAL: ~5.350 linhas
+
+Progresso Geral: ~92% (+14%)
+
+
+================================================================================
+                            PRÓXIMOS PASSOS
+================================================================================
+
+PRIORIDADE ALTA:
+1. [ ] Criar rota /dashboard para métricas
+2. [ ] Validações avançadas no revisor
+
+PRIORIDADE MÉDIA:
+3. [ ] Executar e validar testes
+4. [ ] Documentação com docstrings
+
+PRIORIDADE BAIXA:
+5. [ ] Detecção de questões duplicadas
+6. [ ] Verificação gramatical
+
+
+================================================================================
+                              USO DO SISTEMA
+================================================================================
+
+GERAR PROVA:
+```python
+from backend.services import criar_prova
+
+prova = criar_prova(
+    titulo="Prova de Álgebra",
+    materia="matematica",
+    topicos=["equacao_1_grau", "logaritmo"],
+    num_questoes=10,
+    tipo="multipla_escolha",
+    instituicao="Colégio XYZ"
+)
+
+print(prova["pdfs"]["prova"])    # output/pdf/prova_xxx.pdf
+print(prova["pdfs"]["gabarito"]) # output/pdf/prova_xxx_gabarito.pdf
+```
+
+VIA API:
+```bash
+curl -X POST http://localhost:5000/api/prova \
+  -H "Content-Type: application/json" \
+  -d '{
+    "titulo": "Prova de Física",
+    "materia": "fisica",
+    "topicos": ["mru", "mruv"],
+    "num_questoes": 10,
+    "tipo_questao": "dissertativa"
+  }'
+```
+
+VIA INTERFACE WEB:
+1. Acesse http://localhost:5000/prova
+2. Preencha o formulário
+3. Clique em "Gerar Prova"
+4. Baixe a prova e o gabarito
 
 ================================================================================

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prova Gerada - {{ prova.titulo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --accent-color: #e94560;
+            --success-color: #2ecc71;
+        }
+        
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .success-header {
+            background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .info-section {
+            padding: 2rem;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-card h6 {
+            color: #0f3460;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        .download-card {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 100%);
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .download-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+        
+        .download-card i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+        
+        .btn-download {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-download:hover {
+            background: #d63352;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .btn-download.gabarito {
+            background: #0f3460;
+        }
+        
+        .btn-download.gabarito:hover {
+            background: #1a1a2e;
+        }
+        
+        .questao-preview {
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .questao-preview .numero {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .alternativa {
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .alternativa.correta {
+            background: #d4edda;
+            border-color: var(--success-color);
+        }
+        
+        .resposta-blur {
+            filter: blur(5px);
+            transition: filter 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .resposta-blur:hover {
+            filter: blur(0);
+        }
+        
+        .badge-topico {
+            background: #0f3460;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-dificuldade {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .badge-dificuldade.facil { background: #2ecc71; }
+        .badge-dificuldade.medio { background: #f39c12; }
+        .badge-dificuldade.dificil { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-card">
+                    <!-- Success Header -->
+                    <div class="success-header">
+                        <div class="success-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h1 class="mb-2">Prova Gerada com Sucesso!</h1>
+                        <p class="mb-0 opacity-75">
+                            {{ prova.titulo }}
+                        </p>
+                    </div>
+                    
+                    <!-- Info Section -->
+                    <div class="info-section">
+                        <!-- Resumo -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="info-card text-center">
+                                    <h6><i class="bi bi-list-ol"></i> Questões</h6>
+                                    <div class="value">{{ prova.num_questoes }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="info-card text-center">
+                                    <h6><i class="bi bi-star-fill"></i> Pontuação</h6>
+                                    <div class="value">{{ "%.1f"|format(prova.pontuacao_total) }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="info-card text-center">
+                                    <h6><i class="bi bi-book"></i> Matéria</h6>
+                                    <div class="value" style="font-size: 1.2rem;">{{ prova.materia|title }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="info-card text-center">
+                                    <h6><i class="bi bi-speedometer2"></i> Dificuldade</h6>
+                                    <div class="value" style="font-size: 1.2rem;">{{ prova.dificuldade|title }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Downloads -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-download"></i> Downloads
+                        </h5>
+                        <div class="row mb-4">
+                            {% if prova.pdfs %}
+                            <div class="col-md-6 mb-3">
+                                <div class="download-card">
+                                    <i class="bi bi-file-earmark-pdf d-block"></i>
+                                    <h5>Prova do Aluno</h5>
+                                    <p class="text-muted">Versão para impressão (sem respostas)</p>
+                                    {% if prova.pdfs.prova %}
+                                    <a href="/download/pdf/{{ prova.pdfs.prova.split('/')[-1] }}" 
+                                       class="btn btn-download">
+                                        <i class="bi bi-download"></i> Baixar Prova
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">PDF não disponível</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="download-card">
+                                    <i class="bi bi-file-earmark-check d-block"></i>
+                                    <h5>Gabarito</h5>
+                                    <p class="text-muted">Versão com respostas detalhadas</p>
+                                    {% if prova.pdfs.gabarito %}
+                                    <a href="/download/pdf/{{ prova.pdfs.gabarito.split('/')[-1] }}" 
+                                       class="btn btn-download gabarito">
+                                        <i class="bi bi-download"></i> Baixar Gabarito
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">PDF não disponível</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    Os PDFs não puderam ser gerados. 
+                                    {% if prova.erro_pdf %}
+                                    Erro: {{ prova.erro_pdf }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Tópicos -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-tags"></i> Tópicos Abordados
+                        </h5>
+                        <div class="mb-4">
+                            {% for topico in prova.topicos %}
+                            <span class="badge badge-topico text-white">
+                                {{ topico|replace('_', ' ')|title }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Preview das Questões -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-eye"></i> Preview das Questões
+                            <small class="text-muted">(passe o mouse para ver as respostas)</small>
+                        </h5>
+                        
+                        <div class="accordion" id="questoesAccordion">
+                            {% for questao in prova.questoes %}
+                            <div class="questao-preview">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="numero">Questão {{ questao.numero }}</span>
+                                    <div>
+                                        {% if questao.topico %}
+                                        <span class="badge badge-topico text-white">
+                                            {{ questao.topico|replace('_', ' ') }}
+                                        </span>
+                                        {% endif %}
+                                        <span class="badge badge-dificuldade {{ questao.dificuldade }} text-white">
+                                            {{ questao.dificuldade|title }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <p class="mb-2">{{ questao.enunciado }}</p>
+                                
+                                {% if questao.alternativas %}
+                                <!-- Múltipla Escolha -->
+                                <div class="mt-2">
+                                    {% for alt in questao.alternativas %}
+                                    <div class="alternativa {% if alt.correta %}correta{% endif %}">
+                                        <strong>({{ alt.letra }})</strong> 
+                                        {% if alt.correta %}
+                                        <span class="resposta-blur">{{ alt.texto }}</span>
+                                        <i class="bi bi-check-circle-fill text-success ms-2"></i>
+                                        {% else %}
+                                        {{ alt.texto }}
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <!-- Dissertativa -->
+                                <div class="mt-2">
+                                    <strong>Resposta:</strong>
+                                    <span class="resposta-blur">{{ questao.resposta }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Ações -->
+                        <div class="text-center mt-5">
+                            <a href="/prova" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-plus-circle"></i> Gerar Nova Prova
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-house"></i> Página Inicial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
