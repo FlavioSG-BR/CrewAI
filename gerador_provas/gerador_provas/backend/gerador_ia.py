@@ -114,7 +114,7 @@ class GeradorQuestoesIA:
         topico: str = "geral",
         dificuldade: str = "medio",
         observacoes: str = "",
-        com_revisao: bool = True
+        com_revisao: bool = False  # Desabilitado por padrão para economizar API
     ) -> dict:
         """
         Gera uma questão usando IA.
@@ -275,6 +275,81 @@ class GeradorQuestoesIA:
 
 
 # =============================================================================
+# Geração Direta (1 única chamada - mais eficiente)
+# =============================================================================
+
+def gerar_questao_direta(
+    disciplina: str,
+    topico: str = "geral",
+    dificuldade: str = "medio",
+    observacoes: str = ""
+) -> dict:
+    """
+    Gera uma questão com 1 ÚNICA chamada à API (mais eficiente).
+    
+    Esta função NÃO usa CrewAI, faz uma chamada direta ao LLM.
+    Ideal para APIs com limite de quota.
+    
+    Args:
+        disciplina: Nome da disciplina
+        topico: Tópico específico
+        dificuldade: Nível (facil, medio, dificil)
+        observacoes: Instruções específicas do professor
+    
+    Returns:
+        Dicionário com a questão gerada
+    """
+    import litellm
+    from backend.llm_config import detectar_provider_automatico
+    import os
+    
+    provider, model = detectar_provider_automatico()
+    prompt = get_prompt(disciplina, topico, dificuldade, observacoes)
+    
+    # Configura o modelo no formato do LiteLLM
+    if provider == "gemini":
+        model_name = f"gemini/{model}"
+        api_key = os.getenv("GOOGLE_API_KEY")
+    elif provider == "openai":
+        model_name = model
+        api_key = os.getenv("OPENAI_API_KEY")
+    elif provider == "anthropic":
+        model_name = f"anthropic/{model}"
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+    else:
+        model_name = f"ollama/{model}"
+        api_key = None
+    
+    # 1 única chamada à API
+    response = litellm.completion(
+        model=model_name,
+        messages=[{"role": "user", "content": prompt}],
+        api_key=api_key,
+        temperature=0.7,
+    )
+    
+    # Extrai a resposta
+    response_text = response.choices[0].message.content
+    
+    # Parse do JSON
+    gerador = GeradorQuestoesIA.__new__(GeradorQuestoesIA)
+    questao = gerador._parse_json_response(response_text)
+    
+    # Adiciona metadados
+    questao["materia"] = disciplina
+    questao["dificuldade"] = dificuldade
+    questao["topico"] = topico
+    questao["gerado_por_ia"] = True
+    
+    if observacoes:
+        questao["observacoes_professor"] = observacoes
+    
+    log_questao_gerada(disciplina)
+    
+    return questao
+
+
+# =============================================================================
 # Funções de conveniência
 # =============================================================================
 
@@ -292,15 +367,36 @@ def gerar_questao_ia(
     disciplina: str,
     topico: str = "geral",
     dificuldade: str = "medio",
-    observacoes: str = ""
+    observacoes: str = "",
+    verificar_bibliografia: bool = False
 ) -> dict:
     """
-    Função de conveniência para gerar uma questão com IA.
+    Gera uma questão com IA.
+    
+    Args:
+        disciplina: Nome da disciplina
+        topico: Tópico específico
+        dificuldade: Nível (facil, medio, dificil)
+        observacoes: Instruções do professor
+        verificar_bibliografia: Se True, verifica em fontes acadêmicas (+1 chamada API)
+    
+    Chamadas à API:
+        - Sem verificação: 1 chamada
+        - Com verificação: 2 chamadas
     
     Exemplo:
         questao = gerar_questao_ia("farmacologia", "antibioticos", "dificil")
+        questao = gerar_questao_ia("farmacologia", "antibioticos", "dificil", verificar_bibliografia=True)
     """
-    return get_gerador_ia().gerar_questao(disciplina, topico, dificuldade, observacoes)
+    # Gera a questão (1 chamada)
+    questao = gerar_questao_direta(disciplina, topico, dificuldade, observacoes)
+    
+    # Verifica bibliografia se solicitado (+1 chamada)
+    if verificar_bibliografia:
+        from backend.agents.verificador_bibliografico import verificar_questao_com_ia
+        questao = verificar_questao_com_ia(questao)
+    
+    return questao
 
 
 def gerar_multiplas_ia(

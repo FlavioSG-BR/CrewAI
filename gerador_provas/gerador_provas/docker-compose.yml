@@ -32,9 +32,15 @@ services:
       - OUTPUT_DIR=output
       - PDF_OUTPUT_DIR=output/pdf
       - LATEX_OUTPUT_DIR=output/latex
-      # CrewAI / LLM (opcional)
+      # CrewAI / LLM (configuração de IA)
+      - LLM_PROVIDER=${LLM_PROVIDER:-auto}
+      - LLM_MODEL=${LLM_MODEL:-}
+      - USE_AI_GENERATION=${USE_AI_GENERATION:-true}
+      # API Keys (configure a que você tiver)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
     volumes:
       # Código fonte (para desenvolvimento com hot-reload)
       - .:/app

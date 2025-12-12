@@ -25,9 +25,10 @@ def detectar_provider_automatico() -> tuple[str, str]:
     
     Prioridade:
     1. LLM_PROVIDER explícito no .env
-    2. OPENAI_API_KEY presente → openai
-    3. ANTHROPIC_API_KEY presente → anthropic
-    4. Fallback → ollama
+    2. GOOGLE_API_KEY presente → gemini (GRATUITO!)
+    3. OPENAI_API_KEY presente → openai
+    4. ANTHROPIC_API_KEY presente → anthropic
+    5. Fallback → ollama
     
     Returns:
         Tupla (provider, model)
@@ -40,6 +41,10 @@ def detectar_provider_automatico() -> tuple[str, str]:
         return explicit_provider, explicit_model or get_default_model(explicit_provider)
     
     # Detecção automática baseada nas API keys
+    # Prioriza Gemini por ser gratuito!
+    if os.getenv("GOOGLE_API_KEY"):
+        return "gemini", explicit_model or "gemini-2.0-flash"
+    
     if os.getenv("OPENAI_API_KEY"):
         return "openai", explicit_model or "gpt-4o-mini"
     
@@ -56,6 +61,8 @@ def get_default_model(provider: str) -> str:
         "ollama": "llama3.2",
         "openai": "gpt-4o-mini",
         "anthropic": "claude-3-sonnet-20240229",
+        "gemini": "gemini-2.0-flash",  # Modelo gratuito mais recente
+        "google": "gemini-2.0-flash",  # Alias
     }
     return defaults.get(provider.lower(), "llama3.2")
 
@@ -132,6 +139,16 @@ def get_llm(
             temperature=temperature,
         )
     
+    elif provider.lower() in ["gemini", "google"]:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY não configurada!")
+        return LLM(
+            model=f"gemini/{model}",
+            api_key=api_key,
+            temperature=temperature,
+        )
+    
     else:
         # Tenta usar o formato direto do LiteLLM
         return LLM(
@@ -153,6 +170,10 @@ MODELOS_RECOMENDADOS = {
         "medios": ["llama3.1:8b", "codellama", "gemma2"],
         "pesados": ["llama3.1:70b", "mixtral", "qwen2.5:32b"],
         "medicina": ["meditron", "medllama2"],  # Modelos especializados em medicina
+    },
+    "gemini": {  # GRATUITO! ⭐
+        "gratuitos": ["gemini-2.0-flash", "gemini-1.5-flash"],  # Recomendados
+        "potentes": ["gemini-1.5-pro", "gemini-2.0-flash-exp"],
     },
     "openai": {
         "rapidos": ["gpt-4o-mini", "gpt-3.5-turbo"],

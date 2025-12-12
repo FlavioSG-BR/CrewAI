@@ -290,12 +290,38 @@ function Invoke-Stop {
 }
 
 function Invoke-Restart {
-    Write-Header
-    Write-Info "Reiniciando aplicacao..."
+    param([string]$Option = "")
     
-    Invoke-Stop
-    Start-Sleep -Seconds 2
-    Invoke-Start
+    Write-Header
+    
+    if ($Option -eq "--all" -or $Option -eq "-a") {
+        # Reiniciar tudo (web + banco)
+        Write-Info "Reiniciando TODOS os containers (web + banco)..."
+        Invoke-Stop
+        Start-Sleep -Seconds 2
+        Invoke-Start
+    }
+    else {
+        # Reiniciar apenas a web (padrao)
+        Write-Info "Reiniciando apenas a aplicacao web..."
+        
+        if (-not (Test-Docker)) {
+            Write-Error-Msg "Docker/Podman nao esta instalado ou nao esta rodando."
+            return
+        }
+        
+        # Para e reinicia apenas o container web
+        Write-Info "Parando container web..."
+        Invoke-Compose @("stop", "web")
+        
+        Write-Info "Reiniciando container web..."
+        Invoke-Compose @("up", "-d", "web")
+        
+        Write-Status "Aplicacao reiniciada!"
+        Write-Host ""
+        Write-Host "  Web: http://localhost:5000" -ForegroundColor Green
+        Write-Host ""
+    }
 }
 
 function Invoke-Status {
@@ -453,7 +479,9 @@ function Invoke-Help {
     Write-Host "  stop       " -NoNewline -ForegroundColor Green
     Write-Host "- Para a aplicacao"
     Write-Host "  restart    " -NoNewline -ForegroundColor Green
-    Write-Host "- Reinicia a aplicacao"
+    Write-Host "- Reinicia apenas a aplicacao web (rapido)"
+    Write-Host "  restart --all " -NoNewline -ForegroundColor Green
+    Write-Host "- Reinicia web + banco de dados"
     Write-Host "  status     " -NoNewline -ForegroundColor Green
     Write-Host "- Mostra o status dos containers"
     Write-Host "  logs       " -NoNewline -ForegroundColor Green
@@ -491,7 +519,7 @@ function Invoke-Help {
 switch ($Command) {
     "start"    { Invoke-Start }
     "stop"     { Invoke-Stop }
-    "restart"  { Invoke-Restart }
+    "restart"  { Invoke-Restart -Option $SubCommand }
     "status"   { Invoke-Status }
     "logs"     { Invoke-Logs -Service $SubCommand }
     "build"    { Invoke-Build }

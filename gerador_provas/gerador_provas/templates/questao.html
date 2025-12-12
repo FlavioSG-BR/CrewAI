@@ -108,6 +108,61 @@
                             </div>
                         </div>
                         
+                        <!-- Verificação Bibliográfica (se existir) -->
+                        {% if questao.verificacao %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-journal-check me-2"></i>Verificação Bibliográfica
+                            </h5>
+                            <div class="card border-{% if questao.verificacao.precisao == 'alta' %}success{% elif questao.verificacao.precisao == 'media' %}warning{% else %}danger{% endif %}">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <small class="text-muted">Precisão Científica:</small><br>
+                                            {% set prec = questao.verificacao.precisao or 'desconhecida' %}
+                                            <span class="badge fs-6
+                                                {% if prec == 'alta' %}bg-success
+                                                {% elif prec == 'media' %}bg-warning text-dark
+                                                {% else %}bg-danger{% endif %}">
+                                                {{ prec|upper }}
+                                            </span>
+                                        </div>
+                                        {% if questao.verificacao.fontes_consultadas %}
+                                        <div class="col-md-8">
+                                            <small class="text-muted">Fontes Consultadas:</small><br>
+                                            {% for fonte in questao.verificacao.fontes_consultadas[:3] %}
+                                            <span class="badge bg-secondary me-1">{{ fonte }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% if questao.verificacao.observacoes %}
+                                    <div class="mt-3">
+                                        <small class="text-muted">Análise:</small>
+                                        <p class="mb-0 mt-1">{{ questao.verificacao.observacoes }}</p>
+                                    </div>
+                                    {% endif %}
+                                    {% if questao.verificacao.erros_encontrados %}
+                                    <div class="mt-3">
+                                        <small class="text-danger">Erros Encontrados:</small>
+                                        <ul class="mb-0 mt-1">
+                                            {% for erro in questao.verificacao.erros_encontrados %}
+                                            <li class="text-danger">{{ erro }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                    {% if questao.verificacao.correcoes_sugeridas %}
+                                    <div class="mt-3">
+                                        <small class="text-warning">Correções Sugeridas:</small>
+                                        <p class="mb-0 mt-1 text-warning">{{ questao.verificacao.correcoes_sugeridas }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
                         <!-- Observações do Professor (se existirem) -->
                         {% if questao.observacoes_professor %}
                         <div class="mb-4">

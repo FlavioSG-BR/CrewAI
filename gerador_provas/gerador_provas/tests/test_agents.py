@@ -57,8 +57,8 @@ class TestAgenteFisica:
         
         assert questao is not None
         assert "enunciado" in questao
-        assert "dados" in questao
-        assert "massa" in questao["dados"]
+        assert "resposta" in questao
+        assert "tipo" in questao
     
     def test_gerar_questao_por_topico(self):
         """Testa geração por tópico."""

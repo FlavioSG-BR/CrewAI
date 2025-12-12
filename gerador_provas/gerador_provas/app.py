@@ -54,56 +54,60 @@ def index():
         materia = request.form.get("materia", "fisica")
         topico = request.form.get("topico", "")
         dificuldade = request.form.get("dificuldade", "medio")
-        modo = request.form.get("modo", "simples")
-        quantidade = int(request.form.get("quantidade", 1))
+        modo = request.form.get("modo", "simples")  # "simples" ou "ia"
+        multiplas = request.form.get("multiplas", "false") == "true"
+        quantidade = int(request.form.get("quantidade", 5))
         com_diagrama = request.form.get("com_diagrama") == "on"
+        verificar_bibliografia = request.form.get("verificar_bibliografia") == "on"
         observacoes = request.form.get("observacoes", "").strip()
         
         try:
-            if modo == "simples":
-                # Geração simples (template-based)
-                questao = gerar_questao_simples(materia, topico, dificuldade, com_diagrama)
-                if observacoes:
-                    questao["observacoes_professor"] = observacoes
-                questao["gerado_por_ia"] = False
-                return render_template("questao.html", questao=questao, modo="simples")
-            
-            elif modo == "ia":
-                # Geração com IA real (Ollama/OpenAI)
-                if not IA_DISPONIVEL:
-                    return render_template("index.html", erro="IA não disponível. Configure o Ollama ou API key.")
-                questao = gerar_questao_ia(materia, topico, dificuldade, observacoes)
-                return render_template("questao.html", questao=questao, modo="ia")
-            
-            elif modo == "completo":
-                # Geração completa (com CrewAI + revisão)
-                requisitos = {
-                    "materia": materia,
-                    "topico": topico or "geral",
-                    "num_questoes": 1,
-                    "dificuldade": dificuldade,
-                    "com_diagrama": com_diagrama,
-                    "observacoes": observacoes
-                }
-                questao = gerar_prova_completa(requisitos)
-                if observacoes:
-                    questao["observacoes_professor"] = observacoes
-                return render_template("questao.html", questao=questao, modo="completo")
-            
-            elif modo == "multiplas":
-                # Geração de múltiplas questões
-                questoes = gerar_multiplas_questoes(
-                    materia=materia,
-                    topico=topico or "geral",
-                    quantidade=quantidade,
-                    dificuldade=dificuldade,
-                    com_diagrama=com_diagrama
-                )
+            # Geração de MÚLTIPLAS questões
+            if multiplas:
+                if modo == "ia" and IA_DISPONIVEL:
+                    # Múltiplas com IA
+                    questoes = gerar_multiplas_ia(materia, quantidade, topico, dificuldade)
+                else:
+                    # Múltiplas com templates
+                    questoes = gerar_multiplas_questoes(
+                        materia=materia,
+                        topico=topico or "geral",
+                        quantidade=quantidade,
+                        dificuldade=dificuldade,
+                        com_diagrama=com_diagrama
+                    )
+                
                 # Adiciona observações a todas as questões
                 if observacoes:
                     for q in questoes:
                         q["observacoes_professor"] = observacoes
+                
                 return render_template("resultado.html", questoes=questoes, total=len(questoes))
+            
+            # Geração de UMA questão
+            else:
+                if modo == "ia":
+                    # Geração com IA real
+                    if not IA_DISPONIVEL:
+                        return render_template("index.html", erro="IA não disponível. Configure a API key no arquivo .env")
+                    questao = gerar_questao_ia(
+                        materia, topico, dificuldade, observacoes,
+                        verificar_bibliografia=verificar_bibliografia
+                    )
+                else:
+                    # Geração com templates (simples)
+                    questao = gerar_questao_simples(materia, topico, dificuldade, com_diagrama)
+                    questao["gerado_por_ia"] = False
+                    
+                    # Verificação bibliográfica também funciona com templates
+                    if verificar_bibliografia and IA_DISPONIVEL:
+                        from backend.agents.verificador_bibliografico import verificar_questao_com_ia
+                        questao = verificar_questao_com_ia(questao)
+                
+                if observacoes:
+                    questao["observacoes_professor"] = observacoes
+                
+                return render_template("questao.html", questao=questao, modo=modo)
         
         except Exception as e:
             return render_template("index.html", erro=str(e))

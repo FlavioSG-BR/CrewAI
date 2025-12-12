@@ -131,26 +131,49 @@
                                 <label class="form-label fw-bold">
                                     <i class="bi bi-gear materia-icon"></i>Modo de Geração
                                 </label>
-                                <select name="modo" class="form-select" id="selectModo">
-                                    <option value="simples">⚡ Template (rápido, sem IA)</option>
-                                    <option value="ia">🧠 IA Real (Ollama/GPT - questões originais)</option>
-                                    <option value="completo">🤖 IA + Revisão (mais elaborado)</option>
-                                    <option value="multiplas">📋 Múltiplas Questões</option>
-                                </select>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="modo" id="modoSimples" value="simples" checked>
+                                    <label class="btn btn-outline-secondary" for="modoSimples">
+                                        <i class="bi bi-lightning"></i> Rápido (templates)
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="modo" id="modoIA" value="ia">
+                                    <label class="btn btn-outline-primary" for="modoIA">
+                                        <i class="bi bi-robot"></i> IA (originais)
+                                    </label>
+                                </div>
                                 <small class="text-muted">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    "IA Real" gera questões originais usando LLM (requer Ollama ou API configurada)
+                                    Modo IA gera questões originais com revisão automática
                                 </small>
                             </div>
                             
-                            <!-- Quantidade (aparece só no modo múltiplas) -->
+                            <!-- Toggle Múltiplas Questões -->
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="toggleMultiplas">
+                                    <label class="form-check-label" for="toggleMultiplas">
+                                        <i class="bi bi-files me-1"></i>Gerar múltiplas questões
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Quantidade (aparece só quando múltiplas está ativo) -->
                             <div class="mb-4" id="divQuantidade" style="display: none;">
                                 <label class="form-label fw-bold">
                                     <i class="bi bi-123 materia-icon"></i>Quantidade de Questões
                                 </label>
-                                <input type="number" name="quantidade" class="form-control" 
-                                       value="5" min="1" max="20">
+                                <input type="range" class="form-range" name="quantidade" id="rangeQuantidade"
+                                       value="5" min="2" max="20" oninput="labelQuantidade.textContent = this.value">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">2</small>
+                                    <span class="badge bg-primary" id="labelQuantidade">5</span>
+                                    <small class="text-muted">20</small>
+                                </div>
                             </div>
+                            
+                            <!-- Campo oculto para indicar múltiplas -->
+                            <input type="hidden" name="multiplas" id="hiddenMultiplas" value="false">
                             
                             <!-- Observações do Professor -->
                             <div class="mb-4">
@@ -164,6 +187,21 @@
                                 <small class="text-muted">
                                     <i class="bi bi-lightbulb me-1"></i>
                                     Adicione instruções específicas para direcionar a geração da questão
+                                </small>
+                            </div>
+                            
+                            <!-- Verificação Bibliográfica -->
+                            <div class="mb-4" id="divVerificacao">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="verificar_bibliografia" id="verificarBibliografia" checked>
+                                    <label class="form-check-label" for="verificarBibliografia">
+                                        <i class="bi bi-journal-check me-1"></i>Verificar em fontes acadêmicas
+                                        <span class="badge bg-info ms-1">+1 chamada API</span>
+                                    </label>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-mortarboard me-1"></i>
+                                    Verifica precisão científica em Google Acadêmico, Scielo, PubMed
                                 </small>
                             </div>
                             
@@ -305,10 +343,13 @@
             }
         });
         
-        // Mostra/esconde quantidade quando muda o modo
-        document.getElementById('selectModo').addEventListener('change', function() {
+        // Toggle múltiplas questões
+        document.getElementById('toggleMultiplas').addEventListener('change', function() {
             const divQuantidade = document.getElementById('divQuantidade');
-            divQuantidade.style.display = this.value === 'multiplas' ? 'block' : 'none';
+            const hiddenMultiplas = document.getElementById('hiddenMultiplas');
+            
+            divQuantidade.style.display = this.checked ? 'block' : 'none';
+            hiddenMultiplas.value = this.checked ? 'true' : 'false';
         });
         
         // Inicializa tópicos

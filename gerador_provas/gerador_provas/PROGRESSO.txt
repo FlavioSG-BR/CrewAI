@@ -1,7 +1,7 @@
 ================================================================================
                     GERADOR DE PROVAS - ACOMPANHAMENTO DO PROJETO
 ================================================================================
-Última atualização: 12/12/2024 (15:00)
+Última atualização: 12/12/2025 (19:30)
 ================================================================================
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -22,27 +22,79 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
+║                 🆕 ATUALIZAÇÃO 12/12/2025 - SESSÃO NOTURNA                   ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ INTEGRAÇÃO COM GOOGLE GEMINI (GRATUITO!)                                ║
+║  ├─ Modelo: gemini-2.0-flash                                                ║
+║  ├─ Detecção automática de provider por API key                             ║
+║  ├─ Prioridade: Gemini > OpenAI > Anthropic > Ollama                        ║
+║  └─ Limite gratuito: 1.500 requisições/dia                                  ║
+║                                                                               ║
+║  ✅ OTIMIZAÇÃO DE CHAMADAS API                                              ║
+║  ├─ Antes: 2-5 chamadas por questão (CrewAI)                                ║
+║  ├─ Agora: 1 chamada direta (gerar_questao_direta)                          ║
+║  └─ Revisão desabilitada por padrão para economizar                         ║
+║                                                                               ║
+║  ✅ AGENTE VERIFICADOR BIBLIOGRÁFICO                                        ║
+║  ├─ Verifica precisão científica em fontes acadêmicas                       ║
+║  ├─ Fontes: Google Acadêmico, Scielo, PubMed                                ║
+║  ├─ Blacklist: Wikipedia, blogs, sites não confiáveis                       ║
+║  ├─ Toggle na UI para habilitar/desabilitar (+1 chamada API)                ║
+║  └─ Arquivo: backend/agents/verificador_bibliografico.py                    ║
+║                                                                               ║
+║  ✅ UI SIMPLIFICADA                                                          ║
+║  ├─ Modo: Rápido (templates) | IA (originais)                               ║
+║  ├─ Toggle: Múltiplas questões (com slider de quantidade)                   ║
+║  └─ Toggle: Verificar em fontes acadêmicas (default: ON)                    ║
+║                                                                               ║
+║  ✅ SCRIPT MELHORADO                                                         ║
+║  ├─ restart → reinicia apenas a web (rápido)                                ║
+║  └─ restart --all → reinicia web + banco                                    ║
+║                                                                               ║
+║  ✅ TESTES EXPANDIDOS                                                        ║
+║  ├─ tests/test_medicina.py → 28 testes para agentes médicos                 ║
+║  ├─ tests/test_llm_config.py → 15 testes de configuração LLM                ║
+║  ├─ TestConectividadeIA → Verifica integração com IA                        ║
+║  └─ Total: ~110 testes passando                                             ║
+║                                                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════════════════════╗
 ║                      🧠 INTEGRAÇÃO COM IA REAL - CONCLUÍDO                   ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                               ║
+║  [✅] Suporte a Google Gemini (GRATUITO! - gemini-2.0-flash)                ║
 ║  [✅] Suporte a Ollama (LLM local, gratuito, privado)                        ║
 ║  [✅] Suporte a OpenAI (GPT-4, GPT-3.5)                                      ║
 ║  [✅] Suporte a Anthropic (Claude)                                           ║
+║  [✅] Detecção automática de provider (LLM_PROVIDER=auto)                    ║
 ║  [✅] Sistema de prompts especializados por disciplina                       ║
 ║  [✅] Gerador de questões com IA real (gerador_ia.py)                        ║
-║  [✅] Agente Professor + Agente Revisor                                      ║
-║  [✅] Integração na UI (modo "IA Real")                                      ║
+║  [✅] Geração direta otimizada (1 chamada por questão)                       ║
+║  [✅] Verificador bibliográfico (fontes acadêmicas)                          ║
+║  [✅] Integração na UI (modo "IA")                                           ║
 ║                                                                               ║
-║  ARQUIVOS CRIADOS:                                                           ║
-║  - backend/llm_config.py         → Configuração de LLM                       ║
-║  - backend/prompts/medicina.py   → Prompts especializados                    ║
-║  - backend/gerador_ia.py         → Gerador com IA real                       ║
+║  ARQUIVOS CRIADOS/ATUALIZADOS:                                               ║
+║  - backend/llm_config.py                → Configuração de LLM               ║
+║  - backend/prompts/medicina.py          → Prompts especializados            ║
+║  - backend/gerador_ia.py                → Gerador com IA real               ║
+║  - backend/agents/verificador_bibliografico.py → Verificador científico     ║
 ║                                                                               ║
-║  COMO USAR:                                                                  ║
-║  1. Instalar Ollama: https://ollama.ai                                       ║
-║  2. Baixar modelo: ollama pull llama3.2                                      ║
-║  3. Configurar .env: LLM_PROVIDER=ollama, USE_AI_GENERATION=true            ║
-║  4. Selecionar "IA Real" no dropdown de modo de geração                      ║
+║  CONFIGURAÇÃO RÁPIDA (Gemini Gratuito):                                     ║
+║  1. Obter API key: https://aistudio.google.com/apikey                       ║
+║  2. Adicionar ao .env: GOOGLE_API_KEY=sua-chave                             ║
+║  3. Reiniciar: .\script.ps1 restart                                         ║
+║  4. Selecionar modo "IA" na interface                                       ║
+║                                                                               ║
+║  CHAMADAS À API:                                                             ║
+║  ┌─────────────────────────────────────────────────────────────────────┐    ║
+║  │ Modo                           │ Chamadas │ Custo Gemini Gratuito   │    ║
+║  ├─────────────────────────────────────────────────────────────────────┤    ║
+║  │ Rápido (templates)             │ 0        │ Grátis                  │    ║
+║  │ IA (questões originais)        │ 1        │ ~1.500/dia              │    ║
+║  │ IA + Verificação bibliográfica │ 2        │ ~750/dia                │    ║
+║  └─────────────────────────────────────────────────────────────────────┘    ║
 ║                                                                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
@@ -97,7 +149,7 @@
                           FASE 2: AGENTES CREWAI (ATUALIZADO)
 ================================================================================
 
-[✅] 2.1 AgenteFisica (fisica.py) - EXPANDIDO 12/12/2024
+[✅] 2.1 AgenteFisica (fisica.py) - EXPANDIDO 12/12/2025
      ├── Mecânica: MRU, MRUV, Queda Livre
      ├── Dinâmica: Forças, Leis de Newton
      ├── Termodinâmica: Calor, Dilatação
@@ -111,7 +163,7 @@
 [✅] 2.3 AgenteMatematica (matematica.py)
      └── Pendente: adicionar níveis de dificuldade
 
-[✅] 2.4 AgenteBiologia (biologia.py) - NOVO 12/12/2024
+[✅] 2.4 AgenteBiologia (biologia.py) - NOVO 12/12/2025
      ├── Farmacêutica: Farmacologia, Medicamentos, Interações
      ├── Medicina: Anatomia, Fisiologia, Patologia, Casos Clínicos
      ├── Biologia Celular: Organelas, Metabolismo
@@ -132,7 +184,7 @@ TOTAL ATUAL: 8 agentes (+ 1 novo: Biologia)
           FASE 2.5: EXPANSÃO DE AGENTES (ESTRUTURA UNIVERSITÁRIA)
 ================================================================================
 
-STATUS: EM ANDAMENTO - Iniciado 12/12/2024
+STATUS: EM ANDAMENTO - Iniciado 12/12/2025
 
 ################################################################################
 #                                                                              #
@@ -171,7 +223,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
                          AGENTES MÉDICOS IMPLEMENTADOS
 ═══════════════════════════════════════════════════════════════════════════════
 
-[✅] 2.5.M1 AgenteFarmacologia (farmacologia.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M1 AgenteFarmacologia (farmacologia.py) - CONCLUÍDO 12/12/2025
      Prioridade: MÁXIMA
      Status: Implementado
      
@@ -197,7 +249,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  - Casos clínicos com prescrição                                        │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M2 AgenteHistologia (histologia.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M2 AgenteHistologia (histologia.py) - CONCLUÍDO 12/12/2025
      Prioridade: ALTA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -220,7 +272,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  - Características celulares específicas                                │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M3 AgenteAnatomia (anatomia.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M3 AgenteAnatomia (anatomia.py) - CONCLUÍDO 12/12/2025
      Prioridade: ALTA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -243,7 +295,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  - Variações anatômicas                                                │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M4 AgenteFisiologia (fisiologia.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M4 AgenteFisiologia (fisiologia.py) - CONCLUÍDO 12/12/2025
      Prioridade: ALTA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -265,7 +317,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  - Regulação hormonal                                                  │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M5 AgentePatologia (patologia.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M5 AgentePatologia (patologia.py) - CONCLUÍDO 12/12/2025
      Prioridade: ALTA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -287,7 +339,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  - Diagnóstico diferencial                                             │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M6 AgenteBioquimica (bioquimica.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M6 AgenteBioquimica (bioquimica.py) - CONCLUÍDO 12/12/2025
      Prioridade: MÉDIA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -302,7 +354,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  └── Bioquímica Clínica (marcadores)                                   │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M7 AgenteMicrobiologia (microbiologia.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M7 AgenteMicrobiologia (microbiologia.py) - CONCLUÍDO 12/12/2025
      Prioridade: MÉDIA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -315,7 +367,7 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
      │  └── Resistência Antimicrobiana                                        │
      └─────────────────────────────────────────────────────────────────────────┘
 
-[✅] 2.5.M8 AgenteCasosClínicos (casos_clinicos.py) - CONCLUÍDO 12/12/2024
+[✅] 2.5.M8 AgenteCasosClínicos (casos_clinicos.py) - CONCLUÍDO 12/12/2025
      Prioridade: ALTA
      
      ┌─────────────────────────────────────────────────────────────────────────┐
@@ -364,10 +416,10 @@ STATUS: EM ANDAMENTO - Iniciado 12/12/2024
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                               ║
 ║  IMPLEMENTAÇÃO:                                                              ║
-║  [✅] 1. Adicionar campo textarea na UI (index.html) - 12/12/2024           ║
-║  [✅] 2. Passar observações para o backend via API - 12/12/2024             ║
-║  [✅] 3. Incluir observações no contexto dos agentes - 12/12/2024           ║
-║  [✅] 4. Implementar geração com LLM real (Ollama) - 12/12/2024             ║
+║  [✅] 1. Adicionar campo textarea na UI (index.html) - 12/12/2025           ║
+║  [✅] 2. Passar observações para o backend via API - 12/12/2025             ║
+║  [✅] 3. Incluir observações no contexto dos agentes - 12/12/2025           ║
+║  [✅] 4. Implementar geração com LLM real (Ollama) - 12/12/2025             ║
 ║                                                                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
