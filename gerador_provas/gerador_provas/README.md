@@ -1,303 +1,347 @@
-# 📚 Gerador de Provas com CrewAI
+# 🎓 Gerador de Provas Automatizado com CrewAI
 
-Sistema inteligente de geração automática de provas e questões utilizando **CrewAI** (framework de agentes de IA), com interface web Flask e persistência em PostgreSQL.
+![CrewAI + Flask](https://img.shields.io/badge/Powered%20by-CrewAI%20%2B%20Flask-blueviolet)
+![Python](https://img.shields.io/badge/Python-3.11+-blue)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
+![Podman](https://img.shields.io/badge/Podman-Compatible-892CA0)
+![License](https://img.shields.io/badge/License-MIT-green)
 
----
-
-## 🎯 Visão Geral
-
-O **Gerador de Provas** utiliza múltiplos agentes de IA especializados para criar questões de diferentes matérias (Física, Química, Matemática), validá-las pedagogicamente e armazená-las em um banco de dados.
-
-### Funcionalidades Principais
-
-- ✅ Geração de questões de **Física** (MRU, termodinâmica)
-- ✅ Geração de questões de **Química** (tabela periódica, ligações)
-- ✅ Geração de questões de **Matemática** (álgebra, geometria)
-- ✅ **Validação automática** de respostas usando SymPy
-- ✅ **Classificação** por tópico e dificuldade
-- ✅ **Persistência** em PostgreSQL
-- ✅ **Exportação** para PDF (PyLaTeX)
-- ✅ **Dashboard** com gráficos (Plotly)
+Um sistema inteligente para criação de provas personalizadas de **Matemática, Física e Química**, utilizando agentes de IA especializados.
 
 ---
 
-## 🏗️ Arquitetura
+## 🚀 Funcionalidades Principais
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Flask)                      │
-│                    templates/index.html                      │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      app.py (Rotas)                          │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   main_crewai.py (Orquestrador)              │
-│                        CrewAI Crew                           │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-        ┌─────────────┼─────────────┐
-        ▼             ▼             ▼
-┌───────────┐  ┌───────────┐  ┌───────────┐
-│  Agente   │  │  Agente   │  │  Agente   │
-│  Física   │  │  Química  │  │Matemática │
-└───────────┘  └───────────┘  └───────────┘
-        │             │             │
-        └─────────────┼─────────────┘
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Agente Revisor                            │
-│               (Validação Pedagógica)                         │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Agente Persistência                          │
-│                    PostgreSQL                                │
-└─────────────────────────────────────────────────────────────┘
+- **Geração automática de questões** por matéria/tópico
+- **Múltiplos tipos de questão**: dissertativa, múltipla escolha, V/F
+- **Geração de diagramas** em tempo real (gráficos, circuitos, geometria)
+- **Validação especializada**:
+  - Matemática: Verificação de equações com SymPy
+  - Física: Checagem de unidades e fórmulas
+  - Química: Validação de fórmulas moleculares com RDKit
+- **Exportação para**:
+  - PDF (formatação ABNT)
+  - LaTeX (para editores acadêmicos)
+  - Gabarito com respostas detalhadas
+- **Dashboard de métricas** com Plotly
+
+---
+
+## 🛠️ Pré-requisitos
+
+- **Python 3.11+**
+- **Docker** ou **Podman** (recomendado)
+- **PostgreSQL 15+** (incluído no Docker)
+
+---
+
+## 📦 Instalação e Execução
+
+### Opção 1: Com Docker/Podman (Recomendado)
+
+#### Windows (PowerShell)
+
+```powershell
+# Navegar até o diretório do projeto
+cd gerador_provas\gerador_provas
+
+# Iniciar a aplicação
+.\script.ps1 start
+
+# Ver logs em tempo real
+.\script.ps1 logs
+
+# Parar a aplicação
+.\script.ps1 stop
 ```
 
----
+#### Windows (CMD)
 
-## 🤖 Agentes CrewAI
+```cmd
+cd gerador_provas\gerador_provas
 
-| Agente | Função | Tecnologias |
-|--------|--------|-------------|
-| **AgenteFisica** | Gera questões de mecânica e termodinâmica | SymPy |
-| **AgenteQuimica** | Gera questões de química | RDKit |
-| **AgenteMatematica** | Gera questões de álgebra e geometria | SymPy |
-| **AgenteRevisor** | Valida precisão e clareza das questões | Custom Tools |
-| **AgenteClassificador** | Categoriza por tópico e dificuldade | - |
-| **AgenteImagens** | Gera diagramas para questões | Matplotlib (futuro) |
-| **AgentePersistencia** | Armazena no banco de dados | SQLAlchemy |
+script.bat start
+script.bat logs
+script.bat stop
+```
 
----
+#### Linux/Mac (Bash)
 
-## 📦 Instalação
-
-### Pré-requisitos
-
-- Python 3.11+
-- Docker e Docker Compose
-- Git
-
-### Passos
-
-1. **Clone o repositório:**
 ```bash
-git clone <url-do-repositorio>
-cd gerador_provas
+cd gerador_provas/gerador_provas
+
+# Dar permissão de execução (primeira vez)
+chmod +x script.sh
+
+# Iniciar
+./script.sh start
+
+# Ver logs
+./script.sh logs
+
+# Parar
+./script.sh stop
 ```
 
-2. **Crie um ambiente virtual:**
+### Comandos Disponíveis no Script
+
+| Comando | Descrição |
+|---------|-----------|
+| `start` | Inicia a aplicação (containers Docker/Podman) |
+| `stop` | Para a aplicação |
+| `restart` | Reinicia a aplicação |
+| `status` | Mostra o status dos containers |
+| `logs` | Exibe logs em tempo real |
+| `logs web` | Logs apenas da aplicação web |
+| `logs db` | Logs apenas do banco de dados |
+| `build` | Reconstrói as imagens |
+| `migrate` | Executa migrações do banco de dados |
+| `shell` | Abre shell no container da aplicação |
+| `db-shell` | Abre o shell do PostgreSQL |
+| `test` | Executa os testes |
+| `clean` | Remove containers e dados ⚠️ |
+| `help` | Mostra ajuda |
+
+---
+
+### Opção 2: Instalação Local (sem Docker)
+
 ```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/gerador-provas.git
+cd gerador-provas/gerador_provas/gerador_provas
+
+# Criar ambiente virtual
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-```
+# ou
+.\venv\Scripts\activate   # Windows
 
-3. **Instale as dependências:**
-```bash
+# Instalar dependências
 pip install -r requirements.txt
-```
 
-4. **Inicie o banco de dados:**
-```bash
-docker-compose up -d db
-```
+# Configurar variáveis de ambiente
+cp env.template .env
+# Edite o arquivo .env com suas configurações
 
-5. **Execute o script de criação das tabelas:**
-```sql
--- Conecte ao PostgreSQL e execute o conteúdo de populate-script.txt
-```
+# Iniciar o PostgreSQL localmente (necessário)
+# ... configure o DATABASE_URL no .env
 
-6. **Inicie a aplicação:**
-```bash
+# Executar a aplicação
 python app.py
 ```
 
-7. **Acesse no navegador:**
+---
+
+## 🐳 Usando com Podman (Windows)
+
+Se você usa Podman em vez de Docker:
+
+```powershell
+# 1. Criar alias para docker (executar uma vez por sessão)
+Set-Alias -Name docker -Value podman
+
+# 2. Inicializar a máquina Podman (primeira vez)
+podman machine init
+
+# 3. Iniciar a máquina
+podman machine start
+
+# 4. Usar os scripts normalmente
+.\script.ps1 start
 ```
-http://localhost:5000
+
+Para alias permanente, adicione ao seu `$PROFILE`:
+
+```powershell
+# Abrir o profile
+notepad $PROFILE
+
+# Adicionar estas linhas:
+Set-Alias -Name docker -Value podman
+function docker-compose { podman compose @args }
 ```
 
 ---
 
-## 🐳 Usando Docker (Recomendado)
+## 🌐 Acessando a Aplicação
 
-```bash
-# Inicia todos os serviços
-docker-compose up --build
+Após iniciar com `start`:
 
-# Para parar
-docker-compose down
-```
+| Serviço | URL |
+|---------|-----|
+| **Web App** | http://localhost:5000 |
+| **API Health** | http://localhost:5000/api/health |
+| **Banco de Dados** | localhost:5432 |
+| **Adminer** (debug) | http://localhost:8080 |
 
 ---
 
-## 📁 Estrutura do Projeto
+## 🧩 Estrutura do Projeto
 
 ```
 gerador_provas/
-├── app.py                      # Aplicação Flask
-├── Dockerfile                  # Configuração Docker
-├── docker-compose.yml          # Orquestração de containers
-├── requirements.txt            # Dependências Python
-├── PROGRESSO.txt              # Acompanhamento do projeto
-├── README.md                   # Este arquivo
+├── app.py                 # Aplicação Flask principal
+├── config.py              # Configurações centralizadas
+├── script.sh/.ps1/.bat    # Scripts de gerenciamento
+├── docker-compose.yml     # Orquestração de containers
+├── Dockerfile             # Imagem da aplicação
+├── requirements.txt       # Dependências Python
+├── env.template           # Template de variáveis de ambiente
 │
 ├── backend/
-│   ├── main_crewai.py         # Orquestrador CrewAI
-│   │
-│   ├── agents/                 # Agentes de IA
-│   │   ├── classificador.py
-│   │   ├── fisica.py
-│   │   ├── imagens.py
+│   ├── agents/            # Agentes CrewAI especializados
 │   │   ├── matematica.py
-│   │   ├── persistencia.py
+│   │   ├── fisica.py
 │   │   ├── quimica.py
-│   │   └── revisor.py
-│   │
-│   └── utils/                  # Utilitários
-│       ├── dashboard.py
-│       ├── latex_generator.py
-│       ├── logger.py
-│       └── validator.py
+│   │   ├── revisor.py
+│   │   ├── classificador.py
+│   │   ├── imagens.py
+│   │   └── persistencia.py
+│   ├── services/          # Camada de serviços
+│   ├── repositories/      # Acesso a dados
+│   ├── utils/             # Utilitários
+│   └── main_crewai.py     # Orquestração CrewAI
 │
-└── templates/                  # Templates HTML
-    ├── index.html
-    ├── questao.html
-    └── resultado.html
+├── database/              # Migrações SQL
+│   ├── 001_schema_base.sql
+│   ├── 002_tabelas_dominio.sql
+│   ├── ...
+│   └── migrate.py
+│
+├── templates/             # Templates HTML (Jinja2)
+├── static/                # Arquivos estáticos
+│   └── diagramas/         # Diagramas gerados
+├── output/                # Provas exportadas
+│   ├── pdf/
+│   └── latex/
+├── logs/                  # Logs da aplicação
+└── tests/                 # Testes unitários
 ```
 
 ---
 
-## 🔧 Configuração
+## 🤖 Agentes Implementados
 
-### Variáveis de Ambiente (futuro .env)
-
-```env
-DATABASE_URL=postgresql://user:password@db:5432/provas_db
-FLASK_ENV=development
-FLASK_DEBUG=True
-OPENAI_API_KEY=sua-chave-aqui  # Se usar LLM
-```
-
-### Banco de Dados
-
-O schema do banco está em `populate-script.txt`:
-
-- **questoes**: id, materia, topico, enunciado, dificuldade, data_criacao
-- **resolucoes**: id, questao_id, solucao, explicacao, data_criacao
+| Agente | Função |
+|--------|--------|
+| **Matemática** | Gera questões de álgebra, geometria, funções, probabilidade |
+| **Física** | Cria problemas de mecânica, termodinâmica, eletromagnetismo |
+| **Química** | Elabora questões sobre tabela periódica, reações, estequiometria |
+| **Revisor** | Valida questões pedagogicamente |
+| **Classificador** | Categoriza questões por dificuldade e tópico |
+| **Imagens** | Gera diagramas e gráficos automaticamente |
+| **Persistência** | Armazena questões no PostgreSQL |
 
 ---
 
-## 🚀 Uso
+## 📌 Exemplo de Uso (API)
 
-### Via Interface Web
-
-1. Acesse `http://localhost:5000`
-2. Selecione a matéria desejada
-3. Clique em "Gerar Questão"
-4. Visualize a questão gerada
-
-### Via Código Python
+### Gerar uma questão simples
 
 ```python
-from backend.agents.fisica import AgenteFisica
-from backend.agents.matematica import AgenteMatematica
+from backend.main_crewai import gerar_questao_simples
 
-# Gerar questão de Física
-fisica = AgenteFisica()
-questao = fisica.gerar_questao_mru()
-print(questao)
-
-# Gerar questão de Matemática
-matematica = AgenteMatematica()
-questao = matematica.gerar_questao("algebra")
+questao = gerar_questao_simples(
+    materia="matematica",
+    topico="algebra",
+    com_diagrama=True
+)
 print(questao)
 ```
 
----
-
-## 📊 Dashboard
-
-O dashboard de métricas está disponível em `utils/dashboard.py`:
+### Gerar uma prova completa
 
 ```python
-from backend.utils.dashboard import gerar_grafico_acertos
+from backend.main_crewai import gerar_prova_completa
 
-# Gera gráfico de questões por tópico
-gerar_grafico_acertos()
-# Output: output/dashboard.html
+prova = gerar_prova_completa({
+    "materia": "fisica",
+    "topico": "cinematica",
+    "num_questoes": 10,
+    "dificuldade": "medio",
+    "tipo": "multipla_escolha"
+})
 ```
 
----
-
-## 📄 Exportação
-
-### PDF
-
-```python
-from backend.utils.latex_generator import gerar_pdf
-
-questoes = [
-    {"enunciado": "Questão 1..."},
-    {"enunciado": "Questão 2..."}
-]
-gerar_pdf(questoes, "output/prova.pdf")
-```
-
----
-
-## 🧪 Testes (Em Desenvolvimento)
+### Via API REST
 
 ```bash
-# Executar testes
-pytest tests/
+# Gerar questão
+curl -X POST http://localhost:5000/api/questao \
+  -H "Content-Type: application/json" \
+  -d '{"materia": "matematica", "topico": "algebra"}'
 
-# Com cobertura
-pytest --cov=backend tests/
+# Gerar prova
+curl -X POST http://localhost:5000/api/prova \
+  -H "Content-Type: application/json" \
+  -d '{"materia": "fisica", "quantidade": 5}'
 ```
 
 ---
 
-## 📝 Acompanhamento do Projeto
+## 🧪 Executando Testes
 
-Veja o arquivo **`PROGRESSO.txt`** para:
-- Status de cada funcionalidade
-- Bugs corrigidos
-- Próximos passos planejados
+```bash
+# Com Docker
+.\script.ps1 test       # Windows
+./script.sh test        # Linux/Mac
 
----
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
+# Local
+python -m pytest tests/ -v
+```
 
 ---
 
-## 📜 Licença
+## 📋 Variáveis de Ambiente
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+Copie `env.template` para `.env` e configure:
+
+```bash
+# Flask
+FLASK_ENV=development
+SECRET_KEY=sua-chave-secreta
+
+# Banco de Dados
+DATABASE_URL=postgresql://user:password@db:5432/provas_db
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+POSTGRES_DB=provas_db
+
+# Diagramas
+DIAGRAMAS_DIR=static/diagramas
+DIAGRAMAS_DPI=150
+
+# Logs
+LOG_LEVEL=INFO
+LOG_DIR=logs
+```
 
 ---
 
-## 👨‍💻 Autores
+## 🗺️ Roadmap
 
-- Desenvolvido com CrewAI e Flask
+Consulte o arquivo `PROGRESSO.txt` para ver o status detalhado de todas as funcionalidades planejadas:
+
+- [x] Agentes base (Matemática, Física, Química)
+- [x] Sistema de provas com PDF ABNT
+- [x] Geração de diagramas
+- [ ] Autenticação JWT
+- [ ] Multi-tenancy (corporações)
+- [ ] Frontend React
+- [ ] E-commerce (planos pagos)
+- [ ] Painel Admin
 
 ---
 
-## 📞 Suporte
+## 📄 Licença
 
-Para dúvidas ou sugestões, abra uma issue no repositório.
+MIT License - Consulte o arquivo [LICENSE](LICENSE) para detalhes.
 
+---
+
+## 👨‍💻 Autor
+
+Desenvolvido com ❤️ por **Flavio Godoy** | 2025
+
+[![GitHub](https://img.shields.io/badge/GitHub-Profile-black)](https://github.com/seu-usuario)
