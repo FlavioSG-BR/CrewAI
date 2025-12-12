@@ -52,28 +52,28 @@ class TestValidator:
         from backend.utils.validator import validar_resposta
         
         resultado = validar_resposta("5", "5")
-        assert resultado is True
+        assert resultado == True
     
     def test_validar_resposta_equivalente(self):
         """Testa validação de respostas matematicamente equivalentes."""
         from backend.utils.validator import validar_resposta
         
         resultado = validar_resposta("x**2", "x^2")
-        assert resultado is True
+        assert resultado == True
     
     def test_validar_resposta_diferente(self):
         """Testa validação de respostas diferentes."""
         from backend.utils.validator import validar_resposta
         
         resultado = validar_resposta("5", "10")
-        assert resultado is False
+        assert resultado == False
     
     def test_validar_resposta_invalida(self):
         """Testa validação com entrada inválida."""
         from backend.utils.validator import validar_resposta
         
         resultado = validar_resposta("abc", "123")
-        assert resultado is False
+        assert resultado == False
 
 
 class TestConfig:

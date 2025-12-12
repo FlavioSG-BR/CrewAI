@@ -1,8 +1,50 @@
 ================================================================================
                     GERADOR DE PROVAS - ACOMPANHAMENTO DO PROJETO
 ================================================================================
-Última atualização: 11/12/2024 (21:00)
+Última atualização: 12/12/2024 (15:00)
 ================================================================================
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           🎯 FOCO DO MVP: MEDICINA                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  PILOTO: Professora universitária de Medicina                                ║
+║                                                                               ║
+║  DISCIPLINAS PRIORITÁRIAS:                                                   ║
+║  ┌───────────────────────────────────────────────────────────────────────┐   ║
+║  │  💊 Farmacologia     │  🔬 Histologia      │  🫀 Anatomia            │   ║
+║  │  ⚡ Fisiologia       │  🦠 Patologia       │  🧪 Bioquímica          │   ║
+║  │  🧫 Microbiologia    │  🏥 Casos Clínicos  │  🧬 Genética Médica     │   ║
+║  └───────────────────────────────────────────────────────────────────────┘   ║
+║                                                                               ║
+║  OBJETIVO: Validar aplicação com usuária real antes de comercializar        ║
+║                                                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      🧠 INTEGRAÇÃO COM IA REAL - CONCLUÍDO                   ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  [✅] Suporte a Ollama (LLM local, gratuito, privado)                        ║
+║  [✅] Suporte a OpenAI (GPT-4, GPT-3.5)                                      ║
+║  [✅] Suporte a Anthropic (Claude)                                           ║
+║  [✅] Sistema de prompts especializados por disciplina                       ║
+║  [✅] Gerador de questões com IA real (gerador_ia.py)                        ║
+║  [✅] Agente Professor + Agente Revisor                                      ║
+║  [✅] Integração na UI (modo "IA Real")                                      ║
+║                                                                               ║
+║  ARQUIVOS CRIADOS:                                                           ║
+║  - backend/llm_config.py         → Configuração de LLM                       ║
+║  - backend/prompts/medicina.py   → Prompts especializados                    ║
+║  - backend/gerador_ia.py         → Gerador com IA real                       ║
+║                                                                               ║
+║  COMO USAR:                                                                  ║
+║  1. Instalar Ollama: https://ollama.ai                                       ║
+║  2. Baixar modelo: ollama pull llama3.2                                      ║
+║  3. Configurar .env: LLM_PROVIDER=ollama, USE_AI_GENERATION=true            ║
+║  4. Selecionar "IA Real" no dropdown de modo de geração                      ║
+║                                                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                              LEGENDA DE STATUS                                ║
@@ -52,23 +94,282 @@
 
 
 ================================================================================
-                          FASE 2: AGENTES CREWAI (ATUAL)
+                          FASE 2: AGENTES CREWAI (ATUALIZADO)
 ================================================================================
 
-[✅] 2.1 AgenteFisica (fisica.py)
+[✅] 2.1 AgenteFisica (fisica.py) - EXPANDIDO 12/12/2024
+     ├── Mecânica: MRU, MRUV, Queda Livre
+     ├── Dinâmica: Forças, Leis de Newton
+     ├── Termodinâmica: Calor, Dilatação
+     ├── Ondulatória: Ondas, Efeito Doppler
+     ├── Eletricidade: Circuitos, Lei de Ohm
+     └── 3 níveis de dificuldade: fácil, médio, difícil
+     
 [✅] 2.2 AgenteQuimica (quimica.py)
+     └── Pendente: adicionar níveis de dificuldade
+     
 [✅] 2.3 AgenteMatematica (matematica.py)
-[✅] 2.4 AgenteRevisor (revisor.py)
-[✅] 2.5 AgenteClassificador (classificador.py)
-[✅] 2.6 AgenteImagens (imagens.py)
-[✅] 2.7 AgentePersistencia (persistencia.py)
+     └── Pendente: adicionar níveis de dificuldade
 
-TOTAL ATUAL: 7 agentes
+[✅] 2.4 AgenteBiologia (biologia.py) - NOVO 12/12/2024
+     ├── Farmacêutica: Farmacologia, Medicamentos, Interações
+     ├── Medicina: Anatomia, Fisiologia, Patologia, Casos Clínicos
+     ├── Biologia Celular: Organelas, Metabolismo
+     ├── Genética: DNA, Hereditariedade, Herança ligada ao sexo
+     ├── Microbiologia: Bactérias, Vírus, Imunologia, Resistência
+     ├── Ecologia: Ecossistemas, Cadeias alimentares, Sucessão
+     └── 3 níveis de dificuldade: fácil, médio, difícil
+     
+[✅] 2.5 AgenteRevisor (revisor.py)
+[✅] 2.6 AgenteClassificador (classificador.py)
+[✅] 2.7 AgenteImagens (imagens.py)
+[✅] 2.8 AgentePersistencia (persistencia.py)
+
+TOTAL ATUAL: 8 agentes (+ 1 novo: Biologia)
 
 
 ================================================================================
           FASE 2.5: EXPANSÃO DE AGENTES (ESTRUTURA UNIVERSITÁRIA)
 ================================================================================
+
+STATUS: EM ANDAMENTO - Iniciado 12/12/2024
+
+################################################################################
+#                                                                              #
+#              FASE 2.5.M: AGENTES ESPECIALIZADOS EM MEDICINA                 #
+#                        (PRIORIDADE MÁXIMA - MVP)                            #
+#                                                                              #
+################################################################################
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ESTRUTURA DOS AGENTES MÉDICOS                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                         🏥 COORDENADOR MÉDICO                                │
+│                    (Orquestra questões médicas)                              │
+│                               │                                              │
+│    ┌──────────────┬──────────┼──────────┬──────────────┐                    │
+│    │              │          │          │              │                    │
+│    ▼              ▼          ▼          ▼              ▼                    │
+│ ┌──────┐    ┌──────────┐ ┌──────┐ ┌──────────┐  ┌──────────┐               │
+│ │Farma │    │Histologia│ │Anato │ │Fisiologia│  │ Patologia│               │
+│ │cologia│   │          │ │ mia  │ │          │  │          │               │
+│ └──────┘    └──────────┘ └──────┘ └──────────┘  └──────────┘               │
+│                                                                              │
+│    ┌──────────────┬──────────────┬──────────────┐                           │
+│    │              │              │              │                           │
+│    ▼              ▼              ▼              ▼                           │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐                    │
+│ │Bioquímica│ │Microbio  │ │ Genética │ │Casos Clínicos│                    │
+│ │          │ │logia     │ │ Médica   │ │              │                    │
+│ └──────────┘ └──────────┘ └──────────┘ └──────────────┘                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                         AGENTES MÉDICOS IMPLEMENTADOS
+═══════════════════════════════════════════════════════════════════════════════
+
+[✅] 2.5.M1 AgenteFarmacologia (farmacologia.py) - CONCLUÍDO 12/12/2024
+     Prioridade: MÁXIMA
+     Status: Implementado
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Farmacocinética (ADME: Absorção, Distribuição, Metabolismo, Excr.)│
+     │  ├── Farmacodinâmica (Receptores, Agonistas, Antagonistas)             │
+     │  ├── Antibióticos (Beta-lactâmicos, Aminoglicosídeos, Quinolonas...)   │
+     │  ├── Anti-inflamatórios (AINEs, Corticoides)                           │
+     │  ├── Analgésicos (Opioides, Não-opioides)                              │
+     │  ├── Cardiovasculares (Anti-hipertensivos, Antiarrítmicos, Diuréticos) │
+     │  ├── SNC (Ansiolíticos, Antidepressivos, Antiepilépticos)              │
+     │  ├── Endócrinos (Insulinas, Tireoidianos, Corticoides)                 │
+     │  ├── Quimioterápicos (Antineoplásicos)                                 │
+     │  └── Interações medicamentosas                                         │
+     │                                                                          │
+     │  TIPOS DE QUESTÃO:                                                      │
+     │  - Mecanismo de ação de fármacos                                        │
+     │  - Indicações e contraindicações                                        │
+     │  - Efeitos adversos e toxicidade                                        │
+     │  - Interações medicamentosas                                            │
+     │  - Posologia e vias de administração                                    │
+     │  - Casos clínicos com prescrição                                        │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M2 AgenteHistologia (histologia.py) - CONCLUÍDO 12/12/2024
+     Prioridade: ALTA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Tecido Epitelial (revestimento, glandular)                        │
+     │  ├── Tecido Conjuntivo (frouxo, denso, adiposo, cartilaginoso, ósseo)  │
+     │  ├── Tecido Muscular (esquelético, cardíaco, liso)                     │
+     │  ├── Tecido Nervoso (neurônios, células gliais)                        │
+     │  ├── Sistema Cardiovascular (artérias, veias, capilares, coração)      │
+     │  ├── Sistema Respiratório (traqueia, brônquios, alvéolos)              │
+     │  ├── Sistema Digestório (esôfago, estômago, intestinos, fígado)        │
+     │  ├── Sistema Urinário (rim, néfron, ureter, bexiga)                    │
+     │  ├── Sistema Reprodutor (masculino e feminino)                         │
+     │  └── Sistema Endócrino (hipófise, tireoide, suprarrenal, pâncreas)     │
+     │                                                                          │
+     │  TIPOS DE QUESTÃO:                                                      │
+     │  - Identificação de tecidos em lâminas                                  │
+     │  - Correlação estrutura-função                                          │
+     │  - Colorações histológicas (H&E, PAS, Tricrômico)                       │
+     │  - Características celulares específicas                                │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M3 AgenteAnatomia (anatomia.py) - CONCLUÍDO 12/12/2024
+     Prioridade: ALTA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Osteologia (ossos, articulações)                                  │
+     │  ├── Miologia (músculos, inserções, ações)                             │
+     │  ├── Sistema Nervoso (central e periférico)                            │
+     │  ├── Sistema Cardiovascular (coração, vasos)                           │
+     │  ├── Sistema Respiratório                                              │
+     │  ├── Sistema Digestório                                                │
+     │  ├── Sistema Urinário                                                  │
+     │  ├── Sistema Reprodutor                                                │
+     │  ├── Anatomia de Superfície                                            │
+     │  └── Anatomia Radiológica (TC, RM, RX)                                 │
+     │                                                                          │
+     │  TIPOS DE QUESTÃO:                                                      │
+     │  - Identificação de estruturas                                          │
+     │  - Relações anatômicas (o que está anterior/posterior/medial/lateral)  │
+     │  - Inervação e vascularização                                          │
+     │  - Variações anatômicas                                                │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M4 AgenteFisiologia (fisiologia.py) - CONCLUÍDO 12/12/2024
+     Prioridade: ALTA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Fisiologia Celular (potencial de membrana, transporte)            │
+     │  ├── Neurofisiologia (sinapse, reflexos, SNA)                          │
+     │  ├── Fisiologia Cardiovascular (ciclo cardíaco, PA, débito cardíaco)   │
+     │  ├── Fisiologia Respiratória (ventilação, troca gasosa)                │
+     │  ├── Fisiologia Renal (filtração, reabsorção, equilíbrio ácido-base)   │
+     │  ├── Fisiologia Digestória (motilidade, secreção, absorção)            │
+     │  ├── Fisiologia Endócrina (hormônios, feedback)                        │
+     │  ├── Fisiologia Muscular (contração, tipos de fibras)                  │
+     │  └── Termorregulação                                                   │
+     │                                                                          │
+     │  TIPOS DE QUESTÃO:                                                      │
+     │  - Mecanismos fisiológicos                                             │
+     │  - Interpretação de curvas e gráficos                                  │
+     │  - Cálculos (clearance, débito cardíaco, etc.)                         │
+     │  - Regulação hormonal                                                  │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M5 AgentePatologia (patologia.py) - CONCLUÍDO 12/12/2024
+     Prioridade: ALTA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Patologia Geral (lesão celular, inflamação, reparo)               │
+     │  ├── Distúrbios Hemodinâmicos (edema, trombose, embolia, infarto)      │
+     │  ├── Neoplasias (benignas, malignas, metástases)                       │
+     │  ├── Patologia Cardiovascular                                          │
+     │  ├── Patologia Pulmonar                                                │
+     │  ├── Patologia Gastrointestinal                                        │
+     │  ├── Patologia Renal                                                   │
+     │  ├── Patologia do Sistema Nervoso                                      │
+     │  └── Patologia Endócrina                                               │
+     │                                                                          │
+     │  TIPOS DE QUESTÃO:                                                      │
+     │  - Fisiopatologia de doenças                                           │
+     │  - Correlação clínico-patológica                                       │
+     │  - Achados macro e microscópicos                                       │
+     │  - Diagnóstico diferencial                                             │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M6 AgenteBioquimica (bioquimica.py) - CONCLUÍDO 12/12/2024
+     Prioridade: MÉDIA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Aminoácidos e Proteínas                                           │
+     │  ├── Enzimas (cinética, regulação, inibição)                           │
+     │  ├── Carboidratos e Glicólise                                          │
+     │  ├── Ciclo de Krebs e Cadeia Respiratória                              │
+     │  ├── Lipídios e Beta-oxidação                                          │
+     │  ├── Metabolismo de Aminoácidos                                        │
+     │  ├── Bioquímica Hormonal                                               │
+     │  └── Bioquímica Clínica (marcadores)                                   │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M7 AgenteMicrobiologia (microbiologia.py) - CONCLUÍDO 12/12/2024
+     Prioridade: MÉDIA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  TÓPICOS:                                                               │
+     │  ├── Bacteriologia (Gram+, Gram-, diagnóstico, tratamento)             │
+     │  ├── Virologia (ciclo viral, principais vírus humanos)                 │
+     │  ├── Micologia (fungos patogênicos)                                    │
+     │  ├── Parasitologia (protozoários, helmintos)                           │
+     │  ├── Imunologia (resposta imune, anticorpos, vacinas)                  │
+     │  └── Resistência Antimicrobiana                                        │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+[✅] 2.5.M8 AgenteCasosClínicos (casos_clinicos.py) - CONCLUÍDO 12/12/2024
+     Prioridade: ALTA
+     
+     ┌─────────────────────────────────────────────────────────────────────────┐
+     │  FUNCIONALIDADE:                                                        │
+     │  - Gera casos clínicos completos com anamnese, exame físico, exames    │
+     │  - Integra conhecimentos de múltiplas disciplinas                      │
+     │  - Perguntas de diagnóstico diferencial                                │
+     │  - Conduta terapêutica                                                 │
+     │  - Acompanhamento e prognóstico                                        │
+     │                                                                          │
+     │  FORMATO:                                                               │
+     │  - Paciente X, Y anos, sexo, queixa principal...                       │
+     │  - História da doença atual                                            │
+     │  - Antecedentes pessoais/familiares                                    │
+     │  - Exame físico                                                        │
+     │  - Exames complementares                                               │
+     │  - Perguntas objetivas e dissertativas                                 │
+     └─────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                              OUTRAS FUNCIONALIDADES
+═══════════════════════════════════════════════════════════════════════════════
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     NOVA FUNCIONALIDADE: OBSERVAÇÕES DO PROFESSOR            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  [🔄] Campo de observações para direcionamento de questões                   ║
+║                                                                               ║
+║  OBJETIVO: Permitir que o professor adicione instruções específicas          ║
+║  para direcionar a geração de questões.                                      ║
+║                                                                               ║
+║  EXEMPLO DE USO:                                                             ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ Matéria: Biologia                                                       │ ║
+║  │ Tópico: Sistema Digestório                                              │ ║
+║  │ Dificuldade: Difícil                                                    │ ║
+║  │                                                                          │ ║
+║  │ Observações do Professor (opcional):                                    │ ║
+║  │ ┌─────────────────────────────────────────────────────────────────────┐ │ ║
+║  │ │ Foco na estrutura das células do intestino delgado.                 │ │ ║
+║  │ │ Incluir vilosidades e microvilosidades.                             │ │ ║
+║  │ │ Relacionar com absorção de nutrientes.                              │ │ ║
+║  │ └─────────────────────────────────────────────────────────────────────┘ │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                               ║
+║  IMPLEMENTAÇÃO:                                                              ║
+║  [✅] 1. Adicionar campo textarea na UI (index.html) - 12/12/2024           ║
+║  [✅] 2. Passar observações para o backend via API - 12/12/2024             ║
+║  [✅] 3. Incluir observações no contexto dos agentes - 12/12/2024           ║
+║  [✅] 4. Implementar geração com LLM real (Ollama) - 12/12/2024             ║
+║                                                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 
 INSPIRAÇÃO: Estrutura de uma universidade com departamentos, coordenação e suporte
 

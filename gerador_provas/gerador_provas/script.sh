@@ -22,6 +22,10 @@ cd "$SCRIPT_DIR"
 # Nome do projeto
 PROJECT_NAME="gerador-provas"
 
+# Comandos Docker/Podman (serão definidos em check_docker)
+DOCKER_CMD=""
+COMPOSE_CMD=""
+
 # ============================================================================
 # Funções auxiliares
 # ============================================================================
@@ -51,15 +55,37 @@ print_info() {
 }
 
 check_docker() {
-    if ! command -v docker &> /dev/null; then
-        print_error "Docker não está instalado. Por favor, instale o Docker primeiro."
+    # Verificar se docker ou podman está disponível
+    if command -v podman &> /dev/null; then
+        DOCKER_CMD="podman"
+        # Verificar se podman-compose existe, senão usar podman compose
+        if command -v podman-compose &> /dev/null; then
+            COMPOSE_CMD="podman-compose"
+        else
+            COMPOSE_CMD="podman compose"
+        fi
+    elif command -v docker &> /dev/null; then
+        DOCKER_CMD="docker"
+        COMPOSE_CMD="docker-compose"
+    else
+        print_error "Docker ou Podman não está instalado."
+        print_info "Instale Docker: https://docs.docker.com/get-docker/"
+        print_info "Ou Podman: https://podman.io/getting-started/installation"
         exit 1
     fi
     
-    if ! docker info &> /dev/null; then
-        print_error "Docker não está rodando. Por favor, inicie o Docker."
+    # Verificar se está rodando
+    if ! $DOCKER_CMD info &> /dev/null; then
+        print_error "$DOCKER_CMD não está rodando."
+        if [ "$DOCKER_CMD" = "podman" ]; then
+            print_info "Execute: podman machine start"
+        else
+            print_info "Inicie o Docker Desktop ou o serviço Docker."
+        fi
         exit 1
     fi
+    
+    print_info "Usando: $DOCKER_CMD ($COMPOSE_CMD)"
 }
 
 check_env_file() {
@@ -67,8 +93,10 @@ check_env_file() {
         print_warning "Arquivo .env não encontrado. Criando a partir do template..."
         if [ -f "env.template" ]; then
             cp env.template .env
+            # Ajustar DATABASE_URL para Docker (usar 'db' como host)
+            sed -i 's|DATABASE_URL=postgresql://user:password@localhost:5432/provas_db|DATABASE_URL=postgresql://user:password@db:5432/provas_db|g' .env
+            sed -i 's|POSTGRES_HOST=localhost|POSTGRES_HOST=db|g' .env
             print_status "Arquivo .env criado com sucesso!"
-            print_warning "Revise o arquivo .env e ajuste as configurações se necessário."
         else
             print_error "Template env.template não encontrado!"
             exit 1
@@ -82,7 +110,7 @@ wait_for_db() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if docker-compose exec -T db pg_isready -U user -d provas_db &> /dev/null; then
+        if $COMPOSE_CMD exec -T db pg_isready -U user -d provas_db &> /dev/null; then
             print_status "Banco de dados está pronto!"
             return 0
         fi
@@ -110,7 +138,7 @@ cmd_start() {
     mkdir -p output/pdf output/latex static/diagramas logs
     
     print_info "Subindo containers..."
-    docker-compose up -d
+    $COMPOSE_CMD up -d
     
     wait_for_db
     
@@ -131,7 +159,7 @@ cmd_stop() {
     
     check_docker
     
-    docker-compose down
+    $COMPOSE_CMD down
     
     print_status "Aplicação parada com sucesso!"
 }
@@ -152,7 +180,7 @@ cmd_status() {
     
     check_docker
     
-    docker-compose ps
+    $COMPOSE_CMD ps
     
     echo ""
     
@@ -164,7 +192,7 @@ cmd_status() {
     fi
     
     # Verificar se o DB está ok
-    if docker-compose exec -T db pg_isready -U user -d provas_db &> /dev/null; then
+    if $COMPOSE_CMD exec -T db pg_isready -U user -d provas_db &> /dev/null; then
         print_status "Banco de dados está pronto"
     else
         print_warning "Banco de dados não está respondendo"
@@ -180,9 +208,9 @@ cmd_logs() {
     check_docker
     
     if [ -n "$2" ]; then
-        docker-compose logs -f "$2"
+        $COMPOSE_CMD logs -f "$2"
     else
-        docker-compose logs -f
+        $COMPOSE_CMD logs -f
     fi
 }
 
@@ -193,7 +221,7 @@ cmd_build() {
     check_docker
     check_env_file
     
-    docker-compose build --no-cache
+    $COMPOSE_CMD build --no-cache
     
     print_status "Build concluído!"
 }
@@ -205,9 +233,9 @@ cmd_migrate() {
     check_docker
     
     # Verificar se o container está rodando
-    if ! docker-compose ps | grep -q "provas_db.*Up"; then
+    if ! $COMPOSE_CMD ps | grep -q "provas_db.*Up"; then
         print_warning "Banco de dados não está rodando. Iniciando..."
-        docker-compose up -d db
+        $COMPOSE_CMD up -d db
         wait_for_db
     fi
     
@@ -218,7 +246,7 @@ cmd_migrate() {
         if [ -f "$sql_file" ]; then
             filename=$(basename "$sql_file")
             print_info "Executando: $filename"
-            docker-compose exec -T db psql -U user -d provas_db -f /app/$sql_file 2>/dev/null || true
+            $COMPOSE_CMD exec -T db psql -U user -d provas_db -f /app/$sql_file 2>/dev/null || true
         fi
     done
     
@@ -235,7 +263,7 @@ cmd_clean() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_info "Limpando containers e volumes..."
         
-        docker-compose down -v --remove-orphans
+        $COMPOSE_CMD down -v --remove-orphans
         
         # Limpar arquivos gerados
         rm -rf output/pdf/* output/latex/* static/diagramas/* logs/*
@@ -252,7 +280,7 @@ cmd_shell() {
     
     check_docker
     
-    docker-compose exec web /bin/bash
+    $COMPOSE_CMD exec web /bin/bash
 }
 
 cmd_db_shell() {
@@ -261,7 +289,7 @@ cmd_db_shell() {
     
     check_docker
     
-    docker-compose exec db psql -U user -d provas_db
+    $COMPOSE_CMD exec db psql -U user -d provas_db
 }
 
 cmd_test() {
@@ -270,7 +298,7 @@ cmd_test() {
     
     check_docker
     
-    docker-compose exec web python -m pytest tests/ -v
+    $COMPOSE_CMD exec web python -m pytest tests/ -v
 }
 
 cmd_help() {

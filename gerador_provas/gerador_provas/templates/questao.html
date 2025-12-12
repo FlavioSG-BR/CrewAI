@@ -69,13 +69,17 @@
                                 {% endif %}
                             </span>
                         </div>
-                        {% if modo == 'completo' %}
+                        {% if modo == 'ia' or questao.gerado_por_ia %}
+                        <small class="opacity-75">
+                            <i class="bi bi-stars me-1"></i>Gerado com IA Real (LLM)
+                        </small>
+                        {% elif modo == 'completo' %}
                         <small class="opacity-75">
                             <i class="bi bi-robot me-1"></i>Gerado com CrewAI + Revisão
                         </small>
                         {% else %}
                         <small class="opacity-75">
-                            <i class="bi bi-lightning me-1"></i>Geração Rápida
+                            <i class="bi bi-lightning me-1"></i>Template (sem IA)
                         </small>
                         {% endif %}
                     </div>
@@ -104,28 +108,42 @@
                             </div>
                         </div>
                         
+                        <!-- Observações do Professor (se existirem) -->
+                        {% if questao.observacoes_professor %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-chat-left-text me-2"></i>Observações do Professor
+                            </h5>
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                {{ questao.observacoes_professor }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
                         <!-- Tags/Metadados (se existirem) -->
-                        {% if questao.tags %}
+                        {% if questao.tags or questao.dificuldade or questao.materia %}
                         <div class="mb-4">
                             <h5 class="text-muted mb-3">
                                 <i class="bi bi-tags me-2"></i>Classificação
                             </h5>
                             <div class="tags-box p-3">
                                 <div class="row">
-                                    {% if questao.tags.topico %}
+                                    {% if questao.topico or (questao.tags and questao.tags.topico) %}
                                     <div class="col-md-4 mb-2">
                                         <small class="text-muted">Tópico:</small><br>
-                                        <span class="badge bg-primary">{{ questao.tags.topico }}</span>
+                                        <span class="badge bg-primary">{{ questao.topico or questao.tags.topico }}</span>
                                     </div>
                                     {% endif %}
-                                    {% if questao.tags.dificuldade %}
+                                    {% if questao.dificuldade or (questao.tags and questao.tags.dificuldade) %}
                                     <div class="col-md-4 mb-2">
                                         <small class="text-muted">Dificuldade:</small><br>
+                                        {% set dif = questao.dificuldade or questao.tags.dificuldade %}
                                         <span class="badge 
-                                            {% if questao.tags.dificuldade == 'Fácil' %}bg-success
-                                            {% elif questao.tags.dificuldade == 'Médio' %}bg-warning text-dark
+                                            {% if dif in ['facil', 'Fácil'] %}bg-success
+                                            {% elif dif in ['medio', 'Médio'] %}bg-warning text-dark
                                             {% else %}bg-danger{% endif %}">
-                                            {{ questao.tags.dificuldade }}
+                                            {{ dif|capitalize }}
                                         </span>
                                     </div>
                                     {% endif %}

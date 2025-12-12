@@ -40,6 +40,7 @@ class AgenteQuimica:
             role="Professor de Química",
             goal="Elaborar questões sobre tabela periódica, ligações e reações",
             backstory="Especialista em Química com 10 anos de experiência em ensino",
+            verbose=False,
             allow_delegation=False
         )
         self._gerador_imagens = None

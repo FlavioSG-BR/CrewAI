@@ -1,17 +1,23 @@
 import uuid
 import re
+import os
 from crewai import Agent
 from sqlalchemy import create_engine, text
 
+
 class AgentePersistencia:
+    """Agente especializado em persistência de dados."""
+    
     def __init__(self):
         self.agent = Agent(
             role="Persistência em Banco de Dados",
             goal="Armazenar questões e resoluções no PostgreSQL",
             backstory="Especialista em ETL e gestão de dados educacionais.",
+            verbose=False,
             allow_delegation=False
         )
-        self.engine = create_engine("postgresql://user:password@db:5432/provas_db")
+        db_url = os.getenv("DATABASE_URL", "postgresql://provas_user:provas_password_2024@db:5432/provas_db")
+        self.engine = create_engine(db_url)
 
     def salvar_questao(self, materia: str, topico: str, enunciado: str, dificuldade: str) -> str:
         """Salva uma questão no banco de dados"""

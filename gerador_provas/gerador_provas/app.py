@@ -2,6 +2,7 @@
 Gerador de Provas - Aplicação Flask Principal.
 
 Este módulo define as rotas e a lógica principal da aplicação web.
+Suporta geração de questões via templates OU via IA real (Ollama/OpenAI).
 """
 
 import os
@@ -14,6 +15,17 @@ from backend.main_crewai import (
     gerar_questao_com_diagrama
 )
 from backend.services.prova_service import ProvaService, ConfiguracaoProva
+
+# Tenta importar o gerador de IA (pode falhar se LLM não configurado)
+try:
+    from backend.gerador_ia import gerar_questao_ia, gerar_multiplas_ia
+    IA_DISPONIVEL = True
+except Exception as e:
+    print(f"[INFO] Gerador de IA não disponível: {e}")
+    IA_DISPONIVEL = False
+
+# Verifica se deve usar IA
+USE_AI = os.getenv("USE_AI_GENERATION", "false").lower() == "true" and IA_DISPONIVEL
 
 # Inicialização do Flask
 app = Flask(__name__, static_folder='static')
@@ -45,12 +57,23 @@ def index():
         modo = request.form.get("modo", "simples")
         quantidade = int(request.form.get("quantidade", 1))
         com_diagrama = request.form.get("com_diagrama") == "on"
+        observacoes = request.form.get("observacoes", "").strip()
         
         try:
             if modo == "simples":
-                # Geração simples (direto do agente)
-                questao = gerar_questao_simples(materia, topico, com_diagrama)
+                # Geração simples (template-based)
+                questao = gerar_questao_simples(materia, topico, dificuldade, com_diagrama)
+                if observacoes:
+                    questao["observacoes_professor"] = observacoes
+                questao["gerado_por_ia"] = False
                 return render_template("questao.html", questao=questao, modo="simples")
+            
+            elif modo == "ia":
+                # Geração com IA real (Ollama/OpenAI)
+                if not IA_DISPONIVEL:
+                    return render_template("index.html", erro="IA não disponível. Configure o Ollama ou API key.")
+                questao = gerar_questao_ia(materia, topico, dificuldade, observacoes)
+                return render_template("questao.html", questao=questao, modo="ia")
             
             elif modo == "completo":
                 # Geração completa (com CrewAI + revisão)
@@ -59,9 +82,12 @@ def index():
                     "topico": topico or "geral",
                     "num_questoes": 1,
                     "dificuldade": dificuldade,
-                    "com_diagrama": com_diagrama
+                    "com_diagrama": com_diagrama,
+                    "observacoes": observacoes
                 }
                 questao = gerar_prova_completa(requisitos)
+                if observacoes:
+                    questao["observacoes_professor"] = observacoes
                 return render_template("questao.html", questao=questao, modo="completo")
             
             elif modo == "multiplas":
@@ -73,6 +99,10 @@ def index():
                     dificuldade=dificuldade,
                     com_diagrama=com_diagrama
                 )
+                # Adiciona observações a todas as questões
+                if observacoes:
+                    for q in questoes:
+                        q["observacoes_professor"] = observacoes
                 return render_template("resultado.html", questoes=questoes, total=len(questoes))
         
         except Exception as e:

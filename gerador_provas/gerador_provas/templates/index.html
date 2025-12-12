@@ -73,9 +73,22 @@
                                     <i class="bi bi-book materia-icon"></i>Matéria
                                 </label>
                                 <select name="materia" class="form-select form-select-lg" id="selectMateria">
-                                    <option value="fisica">🔬 Física</option>
-                                    <option value="quimica">⚗️ Química</option>
-                                    <option value="matematica">📐 Matemática</option>
+                                    <optgroup label="🏥 Medicina">
+                                        <option value="farmacologia">💊 Farmacologia</option>
+                                        <option value="histologia">🔬 Histologia</option>
+                                        <option value="anatomia">🫀 Anatomia</option>
+                                        <option value="fisiologia">⚡ Fisiologia</option>
+                                        <option value="patologia">🦠 Patologia</option>
+                                        <option value="bioquimica">🧪 Bioquímica</option>
+                                        <option value="microbiologia">🧫 Microbiologia</option>
+                                        <option value="casos_clinicos">🏥 Casos Clínicos</option>
+                                    </optgroup>
+                                    <optgroup label="📚 Ciências Básicas">
+                                        <option value="fisica">🔬 Física</option>
+                                        <option value="quimica">⚗️ Química</option>
+                                        <option value="matematica">📐 Matemática</option>
+                                        <option value="biologia">🧬 Biologia</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             
@@ -119,10 +132,15 @@
                                     <i class="bi bi-gear materia-icon"></i>Modo de Geração
                                 </label>
                                 <select name="modo" class="form-select" id="selectModo">
-                                    <option value="simples">⚡ Simples (mais rápido)</option>
-                                    <option value="completo">🤖 Completo com CrewAI (com revisão)</option>
+                                    <option value="simples">⚡ Template (rápido, sem IA)</option>
+                                    <option value="ia">🧠 IA Real (Ollama/GPT - questões originais)</option>
+                                    <option value="completo">🤖 IA + Revisão (mais elaborado)</option>
                                     <option value="multiplas">📋 Múltiplas Questões</option>
                                 </select>
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    "IA Real" gera questões originais usando LLM (requer Ollama ou API configurada)
+                                </small>
                             </div>
                             
                             <!-- Quantidade (aparece só no modo múltiplas) -->
@@ -132,6 +150,31 @@
                                 </label>
                                 <input type="number" name="quantidade" class="form-control" 
                                        value="5" min="1" max="20">
+                            </div>
+                            
+                            <!-- Observações do Professor -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-chat-left-text materia-icon"></i>Observações do Professor
+                                    <span class="badge bg-secondary ms-2">Opcional</span>
+                                </label>
+                                <textarea name="observacoes" class="form-control" rows="3" 
+                                    placeholder="Ex: Foco na estrutura das células do intestino delgado. Incluir vilosidades e microvilosidades. Relacionar com absorção de nutrientes."
+                                    id="observacoes"></textarea>
+                                <small class="text-muted">
+                                    <i class="bi bi-lightbulb me-1"></i>
+                                    Adicione instruções específicas para direcionar a geração da questão
+                                </small>
+                            </div>
+                            
+                            <!-- Com diagrama -->
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="com_diagrama" id="comDiagrama">
+                                    <label class="form-check-label" for="comDiagrama">
+                                        <i class="bi bi-image me-1"></i>Incluir diagrama/figura
+                                    </label>
+                                </div>
                             </div>
                             
                             <!-- Botão Submit -->
@@ -158,29 +201,90 @@
     <script>
         // Tópicos por matéria
         const topicos = {
+            // === MEDICINA ===
+            farmacologia: [
+                {value: "farmacocinetica", text: "📊 Farmacocinética (ADME)"},
+                {value: "farmacodinamica", text: "🎯 Farmacodinâmica (Receptores)"},
+                {value: "antibioticos", text: "💊 Antibióticos"},
+                {value: "cardiovascular", text: "❤️ Cardiovasculares"},
+                {value: "snc", text: "🧠 Sistema Nervoso Central"},
+                {value: "endocrino", text: "⚡ Endócrino/Antidiabéticos"},
+                {value: "interacoes", text: "⚠️ Interações Medicamentosas"}
+            ],
+            histologia: [
+                {value: "tecidos", text: "🔬 Tecidos Básicos"},
+                {value: "digestorio", text: "🍽️ Sistema Digestório"},
+                {value: "respiratorio", text: "🫁 Sistema Respiratório"},
+                {value: "urinario", text: "🫘 Sistema Urinário"},
+                {value: "coloracoes", text: "🎨 Colorações Histológicas"}
+            ],
+            anatomia: [
+                {value: "osteologia", text: "🦴 Osteologia"},
+                {value: "cardiovascular", text: "❤️ Sistema Cardiovascular"},
+                {value: "nervoso", text: "🧠 Sistema Nervoso"},
+                {value: "respiratorio", text: "🫁 Sistema Respiratório"},
+                {value: "digestorio", text: "🍽️ Sistema Digestório"}
+            ],
+            fisiologia: [
+                {value: "cardiovascular", text: "❤️ Fisiologia Cardiovascular"},
+                {value: "renal", text: "🫘 Fisiologia Renal"},
+                {value: "endocrina", text: "⚡ Fisiologia Endócrina"},
+                {value: "respiratoria", text: "🫁 Fisiologia Respiratória"},
+                {value: "neurofisiologia", text: "🧠 Neurofisiologia"}
+            ],
+            patologia: [
+                {value: "geral", text: "📋 Patologia Geral"},
+                {value: "inflamacao", text: "🔥 Inflamação"},
+                {value: "neoplasia", text: "🦠 Neoplasias"},
+                {value: "hemodinamica", text: "💧 Distúrbios Hemodinâmicos"}
+            ],
+            bioquimica: [
+                {value: "metabolismo", text: "⚡ Metabolismo (Glicólise, Krebs)"},
+                {value: "enzimas", text: "🔧 Enzimas e Cinética"},
+                {value: "lipidios", text: "🧈 Metabolismo de Lipídios"},
+                {value: "proteinas", text: "🥩 Proteínas e Aminoácidos"}
+            ],
+            microbiologia: [
+                {value: "bacteriologia", text: "🦠 Bacteriologia"},
+                {value: "virologia", text: "🧬 Virologia"},
+                {value: "imunologia", text: "🛡️ Imunologia"},
+                {value: "resistencia", text: "⚠️ Resistência Antimicrobiana"}
+            ],
+            casos_clinicos: [
+                {value: "cardiologia", text: "❤️ Cardiologia"},
+                {value: "pneumologia", text: "🫁 Pneumologia"},
+                {value: "endocrinologia", text: "⚡ Endocrinologia"},
+                {value: "infecciosa", text: "🦠 Infectologia"},
+                {value: "geral", text: "🏥 Clínica Geral"}
+            ],
+            // === CIÊNCIAS BÁSICAS ===
             fisica: [
                 {value: "mru", text: "🚗 Movimento Retilíneo Uniforme (MRU)"},
-                {value: "mruv", text: "🚀 Movimento Retilíneo Uniformemente Variado (MRUV)"},
-                {value: "termodinamica", text: "🌡️ Termodinâmica"},
-                {value: "ondulatoria", text: "🌊 Ondulatória"},
-                {value: "optica", text: "💡 Óptica"},
-                {value: "eletricidade", text: "⚡ Eletricidade"}
+                {value: "mruv", text: "🚀 Mov. Uniformemente Variado (MRUV)"},
+                {value: "queda_livre", text: "🍎 Queda Livre"},
+                {value: "forca", text: "💪 Forças e Leis de Newton"},
+                {value: "calor", text: "🌡️ Calorimetria"},
+                {value: "ondas", text: "🌊 Ondas e Ondulatória"},
+                {value: "circuito", text: "⚡ Circuitos Elétricos"}
             ],
             quimica: [
                 {value: "tabela_periodica", text: "📊 Tabela Periódica"},
+                {value: "modelo_atomico", text: "⚛️ Modelos Atômicos"},
                 {value: "ligacoes", text: "🔗 Ligações Químicas"},
-                {value: "reacoes", text: "⚗️ Reações Químicas"},
                 {value: "estequiometria", text: "⚖️ Estequiometria"},
-                {value: "solucoes", text: "💧 Soluções"},
-                {value: "organica", text: "🧬 Química Orgânica"}
+                {value: "organica", text: "🧪 Química Orgânica"}
             ],
             matematica: [
-                {value: "algebra", text: "📐 Álgebra"},
+                {value: "algebra", text: "📐 Álgebra (Equações)"},
                 {value: "geometria", text: "📏 Geometria"},
-                {value: "funcoes", text: "📈 Funções"},
+                {value: "funcoes", text: "📊 Funções"},
                 {value: "trigonometria", text: "📐 Trigonometria"},
-                {value: "probabilidade", text: "🎲 Probabilidade"},
-                {value: "matrizes", text: "🔢 Matrizes"}
+                {value: "probabilidade", text: "🎲 Probabilidade"}
+            ],
+            biologia: [
+                {value: "genetica", text: "🧬 Genética"},
+                {value: "celula", text: "🔬 Biologia Celular"},
+                {value: "ecologia", text: "🌳 Ecologia"}
             ]
         };
         

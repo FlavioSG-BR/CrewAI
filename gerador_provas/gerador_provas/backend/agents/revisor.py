@@ -1,19 +1,16 @@
-﻿from crewai import Agent, Tool
+﻿from crewai import Agent
+
 
 class AgenteRevisor:
+    """Agente especializado em revisão pedagógica de questões."""
+    
     def __init__(self):
-        # Definir a tool ANTES de usar no agent
-        self._tool_validacao = Tool(
-            name="Validador",
-            func=self.validar_questao,
-            description="Valida erros conceituais e gramaticais"
-        )
-        
         self.agent = Agent(
             role="Revisor Pedagógico",
             goal="Validar questões quanto a precisão conceitual e clareza",
             backstory="Especialista em avaliação educacional com 15 anos de experiência",
-            tools=[self._tool_validacao]
+            verbose=False,
+            allow_delegation=False
         )
 
     def validar_questao(self, enunciado: str, resposta: str) -> bool:

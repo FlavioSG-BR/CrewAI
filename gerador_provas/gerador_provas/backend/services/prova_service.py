@@ -83,6 +83,14 @@ class ProvaService:
             "organica": ["hidrocarbonetos", "funcoes_organicas", "isomeria"],
             "inorganica": ["acidos", "bases", "sais", "oxidos"],
             "fisico_quimica": ["estequiometria", "solucoes", "equilibrio_quimico"],
+        },
+        "biologia": {
+            "farmaceutica": ["farmacologia", "medicamentos", "farmacos", "interacoes"],
+            "medicina": ["anatomia", "fisiologia", "patologia", "sistemas"],
+            "celular": ["celula", "organelas", "metabolismo", "citologia"],
+            "genetica": ["dna", "hereditariedade", "cromossomos", "biotecnologia"],
+            "microbiologia": ["bacterias", "virus", "fungos", "imunologia"],
+            "ecologia": ["ecossistema", "cadeia_alimentar", "meio_ambiente", "sucessao"],
         }
     }
     

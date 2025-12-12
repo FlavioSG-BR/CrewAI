@@ -12,6 +12,7 @@ class AgenteMatematica:
             role="Professor de Matemática",
             goal="Criar questões de álgebra, geometria e funções.",
             backstory="Especialista em Matemática com experiência em olimpíadas e vestibulares.",
+            verbose=False,
             allow_delegation=False
         )
         self._gerador_imagens = None

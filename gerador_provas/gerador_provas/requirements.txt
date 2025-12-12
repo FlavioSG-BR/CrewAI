@@ -3,7 +3,7 @@
 # ============================================================================
 
 # Core
-crewai>=0.1.0
+crewai>=0.80.0,<1.0.0
 flask>=2.0.0
 python-dotenv>=0.19.0
 
@@ -22,8 +22,8 @@ matplotlib>=3.8.0
 pandas>=2.0.0
 numpy>=1.24.0
 
-# Química
-rdkit>=2023.03.3
+# Química (rdkit desativado - instalação complexa no Windows)
+# rdkit>=2023.03.3  # Descomentar se precisar de validação molecular avançada
 
 # UI
 flask-bootstrap>=3.3.7.1

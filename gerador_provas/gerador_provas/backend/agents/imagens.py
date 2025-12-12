@@ -2,7 +2,7 @@
 import uuid
 import math
 from typing import Optional, Tuple
-from crewai import Agent, Tool
+from crewai import Agent
 
 # Configuração para não exibir janelas do matplotlib
 import matplotlib
@@ -23,18 +23,12 @@ class AgenteImagens:
         # Criar diretório de output se não existir
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         
-        # Definir a tool antes de usar no agent
-        self._tool_gerador_imagens = Tool(
-            name="GeradorImagens",
-            func=self.gerar_diagrama,
-            description="Gera diagramas a partir de descrições textuais"
-        )
-        
         self.agent = Agent(
             role="Gerador de Diagramas",
             goal="Criar imagens para questões de Física/Química/Matemática",
             backstory="Especialista em visualização científica com experiência em educação",
-            tools=[self._tool_gerador_imagens]
+            verbose=False,
+            allow_delegation=False
         )
     
     def _gerar_nome_arquivo(self) -> str:
