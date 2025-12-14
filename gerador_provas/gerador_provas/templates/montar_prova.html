@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montar Prova - Gerador de Provas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-input: #21262d;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-green: #238636;
+            --accent-red: #da3633;
+            --accent-yellow: #d29922;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-cyan: #39d353;
+        }
+        
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            padding: 2rem;
+        }
+        
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: var(--accent-blue);
+        }
+        
+        /* Header */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem;
+        }
+        
+        .card-header h5 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Form */
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-input);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        /* Questões selecionadas */
+        .questoes-lista {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .questao-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+        
+        .questao-item:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .questao-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
+        .questao-numero {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-purple);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .questao-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .questao-enunciado {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .questao-meta {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .meta-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .meta-badge.materia {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent-blue);
+        }
+        
+        .meta-badge.dificuldade {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--accent-yellow);
+        }
+        
+        .questao-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .questao-actions button {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .questao-actions button:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .questao-actions button.btn-remove:hover {
+            color: var(--accent-red);
+        }
+        
+        /* Número de alunos */
+        .alunos-input {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .alunos-input input {
+            max-width: 150px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .alunos-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .alunos-info strong {
+            color: var(--accent-purple);
+        }
+        
+        /* Opções */
+        .opcao-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .opcao-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-green);
+        }
+        
+        .opcao-label {
+            flex: 1;
+        }
+        
+        .opcao-label strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .opcao-label small {
+            color: var(--text-secondary);
+        }
+        
+        /* Preview */
+        .preview-card {
+            background: linear-gradient(135deg, rgba(163, 113, 247, 0.1), rgba(88, 166, 255, 0.1));
+            border-color: var(--accent-purple);
+        }
+        
+        .preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .preview-stat h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--accent-purple);
+        }
+        
+        .preview-stat p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Botão gerar */
+        .btn-gerar {
+            background: linear-gradient(135deg, var(--accent-purple), #8b5cf6);
+            border: none;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-gerar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(163, 113, 247, 0.4);
+            color: white;
+        }
+        
+        .btn-gerar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary-custom {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        /* Empty state */
+        .empty-questoes {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-questoes i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Grid layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 992px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Alert */
+        .alert-warning {
+            background: rgba(210, 153, 34, 0.15);
+            border: 1px solid rgba(210, 153, 34, 0.3);
+            color: var(--accent-yellow);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/banco-questoes" class="back-link">
+            <i class="bi bi-arrow-left"></i>
+            Voltar ao Banco de Questões
+        </a>
+        
+        <div class="page-header">
+            <h1>
+                <i class="bi bi-file-earmark-plus"></i>
+                Montar Prova
+            </h1>
+            <p>Configure e gere provas individuais para cada aluno com questões embaralhadas</p>
+        </div>
+        
+        <form method="POST" action="/gerar-provas-individuais" id="formMontarProva">
+            <div class="main-grid">
+                <!-- Coluna Principal -->
+                <div class="main-content">
+                    <!-- Informações da Prova -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-info-circle"></i>
+                                Informações da Prova
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Título da Prova *</label>
+                                    <input type="text" class="form-control" name="titulo" 
+                                           placeholder="Ex: Prova de Física - 1º Bimestre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Instituição</label>
+                                    <input type="text" class="form-control" name="instituicao"
+                                           placeholder="Nome da instituição">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tempo Limite (minutos)</label>
+                                    <input type="number" class="form-control" name="tempo_limite"
+                                           placeholder="Ex: 120" min="10" max="300">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Questões Selecionadas -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-list-ol"></i>
+                                Questões Selecionadas
+                                <span class="badge bg-primary ms-2" id="countQuestoes">{{ questoes|length }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if questoes and questoes|length > 0 %}
+                            <div class="questoes-lista" id="questoesLista">
+                                {% for questao in questoes %}
+                                <div class="questao-item" data-id="{{ questao.id }}" draggable="true">
+                                    <span class="questao-numero">{{ loop.index }}</span>
+                                    <div class="questao-content">
+                                        <p class="questao-enunciado">{{ questao.enunciado }}</p>
+                                        <div class="questao-meta">
+                                            <span class="meta-badge materia">{{ questao.materia|title }}</span>
+                                            <span class="meta-badge dificuldade">{{ questao.dificuldade|title }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="questao-actions">
+                                        <button type="button" title="Mover para cima" onclick="moverQuestao(this, -1)">
+                                            <i class="bi bi-chevron-up"></i>
+                                        </button>
+                                        <button type="button" title="Mover para baixo" onclick="moverQuestao(this, 1)">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                        <button type="button" class="btn-remove" title="Remover" onclick="removerQuestao(this)">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                    <input type="hidden" name="questoes[]" value="{{ questao.id }}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <a href="/banco-questoes" class="btn btn-secondary-custom">
+                                    <i class="bi bi-plus-lg"></i>
+                                    Adicionar Mais Questões
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="empty-questoes">
+                                <i class="bi bi-inbox"></i>
+                                <h5>Nenhuma questão selecionada</h5>
+                                <p>Vá ao banco de questões e selecione as questões para a prova</p>
+                                <a href="/banco-questoes" class="btn btn-primary mt-3">
+                                    <i class="bi bi-database"></i>
+                                    Ir ao Banco de Questões
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Instruções -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-card-text"></i>
+                                Instruções da Prova
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control" name="instrucoes" rows="4"
+                                placeholder="Digite as instruções da prova (uma por linha)...
+Ex:
+• Leia atentamente cada questão antes de responder
+• Use caneta azul ou preta
+• Não é permitido o uso de calculadora"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Número de Alunos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-people"></i>
+                                Número de Alunos
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alunos-input">
+                                <input type="number" class="form-control" name="quantidade_alunos" 
+                                       id="quantidadeAlunos" value="30" min="1" max="500" required
+                                       onchange="atualizarPreview()">
+                            </div>
+                            <div class="alunos-info mt-3">
+                                <i class="bi bi-info-circle"></i>
+                                Serão geradas <strong id="numProvas">30</strong> provas únicas,
+                                cada uma com ordem de questões e alternativas embaralhada.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opções de Embaralhamento -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-shuffle"></i>
+                                Opções de Embaralhamento
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <label class="opcao-item">
+                                <input type="checkbox" name="embaralhar_questoes" checked>
+                                <div class="opcao-label">
+                                    <strong>Embaralhar ordem das questões</strong>
+                                    <small>Cada prova terá as questões em ordem diferente</small>
+                                </div>
+                            </label>
+                            
+                            <label class="opcao-item">
+                                <input type="checkbox" name="embaralhar_alternativas" checked>
+                                <div class="opcao-label">
+                                    <strong>Embaralhar alternativas</strong>
+                                    <small>As alternativas de cada questão terão ordens diferentes</small>
+                                </div>
+                            </label>
+                            
+                            <label class="opcao-item">
+                                <input type="checkbox" name="incluir_campo_nome" checked>
+                                <div class="opcao-label">
+                                    <strong>Campo para nome do aluno</strong>
+                                    <small>Incluir campo para identificação na prova</small>
+                                </div>
+                            </label>
+                            
+                            <label class="opcao-item">
+                                <input type="checkbox" name="incluir_campo_matricula" checked>
+                                <div class="opcao-label">
+                                    <strong>Campo para matrícula</strong>
+                                    <small>Incluir campo para número de matrícula</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview -->
+                    <div class="card preview-card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-eye"></i>
+                                Resumo
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-stats">
+                                <div class="preview-stat">
+                                    <h3 id="previewQuestoes">{{ questoes|length }}</h3>
+                                    <p>Questões</p>
+                                </div>
+                                <div class="preview-stat">
+                                    <h3 id="previewProvas">30</h3>
+                                    <p>Provas</p>
+                                </div>
+                                <div class="preview-stat">
+                                    <h3 id="previewGabaritos">30</h3>
+                                    <p>Gabaritos</p>
+                                </div>
+                            </div>
+                            
+                            <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-gerar" 
+                                        {% if not questoes or questoes|length == 0 %}disabled{% endif %}>
+                                    <i class="bi bi-magic"></i>
+                                    Gerar Provas
+                                </button>
+                            </div>
+                            
+                            <p class="text-center mt-3 mb-0" style="font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="bi bi-clock"></i>
+                                Tempo estimado: ~<span id="tempoEstimado">30</span> segundos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // IDs das questões selecionadas
+        let questoesIds = [];
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Coletar IDs iniciais
+            document.querySelectorAll('.questao-item').forEach(item => {
+                questoesIds.push(item.dataset.id);
+            });
+            atualizarPreview();
+        });
+        
+        // Atualizar preview
+        function atualizarPreview() {
+            const quantidade = parseInt(document.getElementById('quantidadeAlunos').value) || 0;
+            const numQuestoes = document.querySelectorAll('.questao-item').length;
+            
+            document.getElementById('numProvas').textContent = quantidade;
+            document.getElementById('previewProvas').textContent = quantidade;
+            document.getElementById('previewGabaritos').textContent = quantidade;
+            document.getElementById('previewQuestoes').textContent = numQuestoes;
+            document.getElementById('countQuestoes').textContent = numQuestoes;
+            
+            // Tempo estimado (1 segundo por prova + 0.5s por questão)
+            const tempoEstimado = Math.ceil(quantidade * 1 + numQuestoes * 0.5);
+            document.getElementById('tempoEstimado').textContent = tempoEstimado;
+            
+            // Desabilitar botão se não tem questões
+            const btnGerar = document.querySelector('.btn-gerar');
+            btnGerar.disabled = numQuestoes === 0;
+        }
+        
+        // Mover questão
+        function moverQuestao(btn, direcao) {
+            const item = btn.closest('.questao-item');
+            const lista = document.getElementById('questoesLista');
+            const items = Array.from(lista.children);
+            const index = items.indexOf(item);
+            
+            if (direcao === -1 && index > 0) {
+                lista.insertBefore(item, items[index - 1]);
+            } else if (direcao === 1 && index < items.length - 1) {
+                lista.insertBefore(items[index + 1], item);
+            }
+            
+            // Atualizar números
+            atualizarNumeros();
+        }
+        
+        // Remover questão
+        function removerQuestao(btn) {
+            const item = btn.closest('.questao-item');
+            item.remove();
+            atualizarNumeros();
+            atualizarPreview();
+        }
+        
+        // Atualizar números das questões
+        function atualizarNumeros() {
+            document.querySelectorAll('.questao-item').forEach((item, index) => {
+                item.querySelector('.questao-numero').textContent = index + 1;
+            });
+        }
+        
+        // Drag and drop
+        let draggedItem = null;
+        
+        document.querySelectorAll('.questao-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedItem = this;
+                this.classList.add('dragging');
+            });
+            
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                atualizarNumeros();
+            });
+            
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const lista = document.getElementById('questoesLista');
+                const afterElement = getDragAfterElement(lista, e.clientY);
+                
+                if (afterElement == null) {
+                    lista.appendChild(draggedItem);
+                } else {
+                    lista.insertBefore(draggedItem, afterElement);
+                }
+            });
+        });
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.questao-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+    </script>
+</body>
+</html>
+

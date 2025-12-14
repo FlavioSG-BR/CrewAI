@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Questões - Gerador de Provas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-input: #21262d;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-green: #238636;
+            --accent-red: #da3633;
+            --accent-yellow: #d29922;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-cyan: #39d353;
+        }
+        
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .container-fluid {
+            max-width: 1600px;
+            padding: 2rem;
+        }
+        
+        /* Header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.total { background: rgba(88, 166, 255, 0.15); color: var(--accent-blue); }
+        .stat-icon.pendentes { background: rgba(210, 153, 34, 0.15); color: var(--accent-yellow); }
+        .stat-icon.aprovadas { background: rgba(35, 134, 54, 0.15); color: var(--accent-green); }
+        .stat-icon.selecionadas { background: rgba(163, 113, 247, 0.15); color: var(--accent-purple); }
+        
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .stat-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Filters */
+        .filters-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .filter-group label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .form-select, .form-control {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 0.625rem 1rem;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            background: var(--bg-input);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+        
+        /* Tabs */
+        .nav-tabs-custom {
+            border: none;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-tabs-custom .nav-link {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+        
+        .nav-tabs-custom .nav-link.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+        
+        .nav-tabs-custom .nav-link .badge {
+            margin-left: 0.5rem;
+        }
+        
+        /* Questions Grid */
+        .questions-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .question-card.selected {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(163, 113, 247, 0.2);
+        }
+        
+        .question-card.selected::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-purple);
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            gap: 1rem;
+        }
+        
+        .question-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent-purple);
+            cursor: pointer;
+        }
+        
+        .question-code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            background: rgba(57, 211, 83, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .question-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-left: auto;
+        }
+        
+        .meta-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .meta-badge.materia {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent-blue);
+        }
+        
+        .meta-badge.dificuldade-facil {
+            background: rgba(57, 211, 83, 0.15);
+            color: var(--accent-cyan);
+        }
+        
+        .meta-badge.dificuldade-medio {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--accent-yellow);
+        }
+        
+        .meta-badge.dificuldade-dificil {
+            background: rgba(218, 54, 51, 0.15);
+            color: var(--accent-red);
+        }
+        
+        .question-body {
+            padding: 1.25rem;
+        }
+        
+        .question-enunciado {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .question-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-input);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .question-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        .btn-icon.btn-review {
+            color: var(--accent-yellow);
+        }
+        
+        .btn-icon.btn-review:hover {
+            background: rgba(210, 153, 34, 0.15);
+            border-color: var(--accent-yellow);
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .status-pendente {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--accent-yellow);
+        }
+        
+        .status-aprovada {
+            background: rgba(35, 134, 54, 0.15);
+            color: var(--accent-green);
+        }
+        
+        /* Floating Action Bar */
+        .floating-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .floating-bar.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .floating-bar .count {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+        }
+        
+        .floating-bar .count small {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+        
+        .btn-criar-prova {
+            background: linear-gradient(135deg, var(--accent-purple), #8b5cf6);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-criar-prova:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(163, 113, 247, 0.4);
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--accent-blue);
+            border: none;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary-custom:hover {
+            background: #4c9aff;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary-custom {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        /* Pagination */
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .pagination .page-link {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .pagination .page-link:hover {
+            background: var(--bg-input);
+            border-color: var(--accent-blue);
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="page-header">
+            <h1>
+                <i class="bi bi-database"></i>
+                Banco de Questões
+            </h1>
+            <div class="header-actions">
+                <a href="/" class="btn btn-secondary-custom">
+                    <i class="bi bi-plus-lg"></i>
+                    Nova Questão
+                </a>
+                <a href="/montar-prova" class="btn btn-primary-custom">
+                    <i class="bi bi-file-earmark-plus"></i>
+                    Montar Prova
+                </a>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="bi bi-collection"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ estatisticas.total|default(0) }}</h3>
+                    <p>Total de Questões</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pendentes">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ estatisticas.pendentes|default(0) }}</h3>
+                    <p>Pendentes</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon aprovadas">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ estatisticas.aprovadas|default(0) }}</h3>
+                    <p>Aprovadas</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon selecionadas">
+                    <i class="bi bi-check2-square"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="countSelecionadas">0</h3>
+                    <p>Selecionadas</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <ul class="nav nav-tabs-custom">
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if tab == 'todas' or not tab }}" href="?tab=todas">
+                    <i class="bi bi-grid-3x3"></i>
+                    Todas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if tab == 'pendentes' }}" href="?tab=pendentes">
+                    <i class="bi bi-hourglass-split"></i>
+                    Pendentes
+                    {% if estatisticas.pendentes %}
+                    <span class="badge bg-warning text-dark">{{ estatisticas.pendentes }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if tab == 'aprovadas' }}" href="?tab=aprovadas">
+                    <i class="bi bi-check-circle"></i>
+                    Aprovadas
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Matéria</label>
+                <select class="form-select" id="filterMateria" onchange="aplicarFiltros()">
+                    <option value="">Todas</option>
+                    <option value="fisica">Física</option>
+                    <option value="quimica">Química</option>
+                    <option value="matematica">Matemática</option>
+                    <option value="biologia">Biologia</option>
+                    <option value="farmacologia">Farmacologia</option>
+                    <option value="anatomia">Anatomia</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Dificuldade</label>
+                <select class="form-select" id="filterDificuldade" onchange="aplicarFiltros()">
+                    <option value="">Todas</option>
+                    <option value="facil">Fácil</option>
+                    <option value="medio">Médio</option>
+                    <option value="dificil">Difícil</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Tópico</label>
+                <select class="form-select" id="filterTopico" onchange="aplicarFiltros()">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 2;">
+                <label>Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text" style="background: var(--bg-input); border-color: var(--border-color); color: var(--text-secondary);">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Buscar no enunciado..." id="filterBusca" onkeyup="aplicarFiltros()">
+                </div>
+            </div>
+            <div class="filter-group" style="flex: 0;">
+                <label>&nbsp;</label>
+                <button class="btn btn-secondary-custom" onclick="limparFiltros()">
+                    <i class="bi bi-x-lg"></i>
+                    Limpar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Questions Grid -->
+        <div class="questions-grid" id="questionsGrid">
+            {% if questoes and questoes|length > 0 %}
+                {% for questao in questoes %}
+                <div class="question-card" data-id="{{ questao.id }}" 
+                     data-materia="{{ questao.materia }}"
+                     data-dificuldade="{{ questao.dificuldade }}"
+                     data-topico="{{ questao.topico }}">
+                    <div class="question-header">
+                        <input type="checkbox" class="question-checkbox" 
+                               onchange="toggleSelecionada('{{ questao.id }}', this)">
+                        <span class="question-code">{{ questao.codigo or 'Q-' ~ loop.index }}</span>
+                        <span class="status-badge status-{{ questao.status|default('pendente') }}">
+                            {{ questao.status|default('pendente')|title }}
+                        </span>
+                        <div class="question-meta">
+                            <span class="meta-badge materia">{{ questao.materia|title }}</span>
+                            <span class="meta-badge dificuldade-{{ questao.dificuldade|default('medio') }}">
+                                {{ questao.dificuldade|default('Médio')|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="question-body">
+                        <p class="question-enunciado">{{ questao.enunciado }}</p>
+                        {% if questao.topico %}
+                        <small style="color: var(--text-secondary);">
+                            <i class="bi bi-tag"></i> {{ questao.topico|replace('_', ' ')|title }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <div class="question-footer">
+                        <span class="question-date">
+                            <i class="bi bi-calendar3"></i>
+                            {{ questao.created_at|default('Hoje') }}
+                        </span>
+                        <div class="question-actions">
+                            <a href="/revisar/{{ questao.id }}" class="btn-icon btn-review" title="Revisar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <button class="btn-icon" title="Ver detalhes" onclick="verDetalhes('{{ questao.id }}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-icon" title="Excluir" onclick="excluirQuestao('{{ questao.id }}')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3>Nenhuma questão encontrada</h3>
+                    <p>Comece gerando novas questões ou ajuste os filtros</p>
+                    <a href="/" class="btn btn-primary-custom mt-3">
+                        <i class="bi bi-plus-lg"></i>
+                        Gerar Nova Questão
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if questoes and questoes|length > 0 %}
+        <div class="pagination-bar">
+            <div class="pagination-info">
+                Mostrando <strong>{{ questoes|length }}</strong> questões
+            </div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Anterior</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Próximo</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Floating Action Bar -->
+    <div class="floating-bar" id="floatingBar">
+        <div class="count">
+            <span id="floatingCount">0</span>
+            <small>selecionadas</small>
+        </div>
+        <button class="btn btn-secondary-custom" onclick="limparSelecao()">
+            <i class="bi bi-x-lg"></i>
+            Limpar
+        </button>
+        <a href="#" class="btn btn-criar-prova" id="btnCriarProva">
+            <i class="bi bi-file-earmark-plus"></i>
+            Montar Prova
+        </a>
+    </div>
+    
+    <!-- Modal Detalhes -->
+    <div class="modal fade" id="modalDetalhes" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background: var(--bg-card); border-color: var(--border-color);">
+                <div class="modal-header" style="border-color: var(--border-color);">
+                    <h5 class="modal-title" style="color: var(--text-primary);">
+                        <i class="bi bi-file-text"></i>
+                        Detalhes da Questão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Conteúdo carregado via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Questões selecionadas
+        let questoesSelecionadas = new Set();
+        
+        // Toggle seleção de questão
+        function toggleSelecionada(id, checkbox) {
+            const card = checkbox.closest('.question-card');
+            
+            if (checkbox.checked) {
+                questoesSelecionadas.add(id);
+                card.classList.add('selected');
+            } else {
+                questoesSelecionadas.delete(id);
+                card.classList.remove('selected');
+            }
+            
+            atualizarContadores();
+        }
+        
+        // Atualizar contadores
+        function atualizarContadores() {
+            const count = questoesSelecionadas.size;
+            document.getElementById('countSelecionadas').textContent = count;
+            document.getElementById('floatingCount').textContent = count;
+            
+            const floatingBar = document.getElementById('floatingBar');
+            if (count > 0) {
+                floatingBar.classList.add('visible');
+            } else {
+                floatingBar.classList.remove('visible');
+            }
+            
+            // Atualizar link do botão criar prova
+            const ids = Array.from(questoesSelecionadas).join(',');
+            document.getElementById('btnCriarProva').href = '/montar-prova?questoes=' + ids;
+        }
+        
+        // Limpar seleção
+        function limparSelecao() {
+            questoesSelecionadas.clear();
+            document.querySelectorAll('.question-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            atualizarContadores();
+        }
+        
+        // Aplicar filtros
+        function aplicarFiltros() {
+            const materia = document.getElementById('filterMateria').value.toLowerCase();
+            const dificuldade = document.getElementById('filterDificuldade').value.toLowerCase();
+            const busca = document.getElementById('filterBusca').value.toLowerCase();
+            
+            document.querySelectorAll('.question-card').forEach(card => {
+                const cardMateria = card.dataset.materia?.toLowerCase() || '';
+                const cardDificuldade = card.dataset.dificuldade?.toLowerCase() || '';
+                const cardEnunciado = card.querySelector('.question-enunciado')?.textContent.toLowerCase() || '';
+                
+                let mostrar = true;
+                
+                if (materia && cardMateria !== materia) mostrar = false;
+                if (dificuldade && cardDificuldade !== dificuldade) mostrar = false;
+                if (busca && !cardEnunciado.includes(busca)) mostrar = false;
+                
+                card.style.display = mostrar ? 'block' : 'none';
+            });
+        }
+        
+        // Limpar filtros
+        function limparFiltros() {
+            document.getElementById('filterMateria').value = '';
+            document.getElementById('filterDificuldade').value = '';
+            document.getElementById('filterTopico').value = '';
+            document.getElementById('filterBusca').value = '';
+            aplicarFiltros();
+        }
+        
+        // Ver detalhes da questão
+        function verDetalhes(id) {
+            // Buscar dados da questão (simulado)
+            const card = document.querySelector(`[data-id="${id}"]`);
+            const enunciado = card.querySelector('.question-enunciado').textContent;
+            const materia = card.dataset.materia;
+            const dificuldade = card.dataset.dificuldade;
+            
+            document.getElementById('modalBody').innerHTML = `
+                <div class="mb-3">
+                    <span class="meta-badge materia">${materia}</span>
+                    <span class="meta-badge dificuldade-${dificuldade}">${dificuldade}</span>
+                </div>
+                <h6 style="color: var(--text-secondary);">ENUNCIADO</h6>
+                <p style="color: var(--text-primary); line-height: 1.7;">${enunciado}</p>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
+            modal.show();
+        }
+        
+        // Excluir questão
+        function excluirQuestao(id) {
+            if (confirm('Tem certeza que deseja excluir esta questão?')) {
+                // Enviar request para excluir
+                fetch(`/api/questao/${id}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            document.querySelector(`[data-id="${id}"]`).remove();
+                        }
+                    })
+                    .catch(err => console.error(err));
+            }
+        }
+    </script>
+</body>
+</html>
+

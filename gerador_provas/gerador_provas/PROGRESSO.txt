@@ -1,8 +1,116 @@
 ================================================================================
                     GERADOR DE PROVAS - ACOMPANHAMENTO DO PROJETO
 ================================================================================
-Última atualização: 12/12/2025 (19:30)
+Última atualização: 14/12/2024 (noite)
 ================================================================================
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              🆕 ATUALIZAÇÃO 14/12/2024 - NOVO FLUXO DE NEGÓCIO               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  🎯 GRANDE REFATORAÇÃO DO FLUXO DE NEGÓCIO                                  ║
+║                                                                               ║
+║  NOVO FLUXO IMPLEMENTADO:                                                    ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │  1. Professor solicita geração de questões pela IA                      │ ║
+║  │  2. IA gera questões COMPLETAS (com explicações de cada alternativa)    │ ║
+║  │  3. Professor revisa, edita, adiciona comentários e fontes              │ ║
+║  │  4. Professor aprova → questão vai para o banco de questões             │ ║
+║  │  5. Professor seleciona questões para montar prova                      │ ║
+║  │  6. Sistema gera N+1 provas (N alunos + 1 professor)                    │ ║
+║  │     • Provas dos alunos: embaralhadas, sem respostas                    │ ║
+║  │     • Prova do professor: comentada, com gabarito completo              │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ QUESTÃO COMPLETA DESDE A GERAÇÃO                                        ║
+║  ├─ Enunciado claro e objetivo                                              ║
+║  ├─ Alternativas COM explicação individual:                                 ║
+║  │   • Correta: por que está certa                                          ║
+║  │   • Incorretas: por que está errada + erro conceitual                    ║
+║  ├─ Explicação geral do conceito                                            ║
+║  ├─ Resolução passo a passo                                                 ║
+║  ├─ Erros comuns dos alunos                                                 ║
+║  ├─ Fontes bibliográficas                                                   ║
+║  ├─ Critérios de correção (dissertativas)                                   ║
+║  ├─ Nível cognitivo (Taxonomia de Bloom)                                    ║
+║  └─ Tempo estimado de resolução                                             ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ TIPOS DE QUESTÃO SUPORTADOS                                             ║
+║  ├─ Múltipla escolha (2-10 alternativas)                                    ║
+║  ├─ Verdadeiro/Falso (NÃO embaralha V/F)                                    ║
+║  ├─ Dissertativa (com critérios de correção)                                ║
+║  ├─ Numérica (com tolerância)                                               ║
+║  ├─ Múltipla resposta (mais de uma correta)                                 ║
+║  └─ Associação de colunas                                                   ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ PROVA DO PROFESSOR (MESTRE COMENTADA)                                   ║
+║  ├─ Gerada automaticamente junto com as provas dos alunos                   ║
+║  ├─ Questões na ordem original (não embaralhadas)                           ║
+║  ├─ Cada alternativa com:                                                   ║
+║  │   • ✓ CORRETA destacada em verde                                         ║
+║  │   • ✗ INCORRETAS em vermelho com explicação do erro                      ║
+║  ├─ Explicação geral de cada questão                                        ║
+║  ├─ Erros comuns dos alunos                                                 ║
+║  ├─ Dicas de correção para o professor                                      ║
+║  ├─ Fontes bibliográficas                                                   ║
+║  └─ Critérios de correção (para dissertativas)                              ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ EMBARALHAMENTO INTELIGENTE                                              ║
+║  ├─ Embaralha ordem das questões                                            ║
+║  ├─ Embaralha alternativas (exceto V/F)                                     ║
+║  ├─ Cada prova tem gabarito único                                           ║
+║  ├─ Código único por prova para verificação                                 ║
+║  └─ Hash de integridade                                                     ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ NOVOS ARQUIVOS CRIADOS                                                  ║
+║  ├─ database/009_fluxo_revisao_provas.sql                                   ║
+║  ├─ database/010_questao_comentada_completa.sql                             ║
+║  ├─ backend/services/revisao_service.py                                     ║
+║  ├─ backend/services/embaralhamento_service.py                              ║
+║  ├─ backend/services/prova_individual_service.py                            ║
+║  ├─ backend/services/questao_completa_service.py                            ║
+║  ├─ templates/banco_questoes.html                                           ║
+║  ├─ templates/revisao_questao.html                                          ║
+║  ├─ templates/montar_prova.html                                             ║
+║  └─ templates/provas_individuais.html                                       ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  ✅ TESTES CRIADOS                                                          ║
+║  ├─ tests/test_revisao_service.py (444 linhas)                              ║
+║  ├─ tests/test_embaralhamento_service.py (898 linhas)                       ║
+║  ├─ tests/test_prova_individual_service.py (1018 linhas)                    ║
+║  ├─ tests/test_questao_completa_service.py (499 linhas)                     ║
+║  └─ tests/test_rotas_novo_fluxo.py (514 linhas)                             ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  📊 ESTRUTURA DO ZIP GERADO:                                                 ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │  prova_fisica_20241214/                                                 │ ║
+║  │  ├── prova_professor/                                                   │ ║
+║  │  │   ├── prova_professor.pdf    ← Gabarito comentado                   │ ║
+│  │  │   └── prova_professor.json   ← Dados em JSON                        │ ║
+║  │  ├── provas_alunos/                                                     │ ║
+║  │  │   ├── prova_A1B2C3.pdf       ← 30 provas únicas                     │ ║
+║  │  │   └── ...                                                            │ ║
+║  │  ├── gabaritos/                                                         │ ║
+║  │  │   ├── gabarito_A1B2C3.pdf    ← 30 gabaritos                         │ ║
+║  │  │   └── ...                                                            │ ║
+║  │  └── gabarito_consolidado.json  ← Todos os gabaritos                   │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                           🎯 FOCO DO MVP: MEDICINA                           ║

@@ -3,10 +3,19 @@ Gerador de Provas - Aplicação Flask Principal.
 
 Este módulo define as rotas e a lógica principal da aplicação web.
 Suporta geração de questões via templates OU via IA real (Ollama/OpenAI).
+
+Fluxo de Negócio (Versão Piloto):
+1. Professor solicita geração de questões
+2. Professor revisa, comenta e propõe melhorias
+3. Professor aprova questão (salva no banco)
+4. Professor seleciona questões do banco para montar prova
+5. Professor define número de alunos
+6. Sistema gera N provas únicas com embaralhamento
 """
 
 import os
-from flask import Flask, render_template, request, jsonify, send_from_directory, send_file
+import json
+from flask import Flask, render_template, request, jsonify, send_from_directory, send_file, redirect, url_for
 from config import settings
 from backend.main_crewai import (
     gerar_questao_simples,
@@ -15,6 +24,8 @@ from backend.main_crewai import (
     gerar_questao_com_diagrama
 )
 from backend.services.prova_service import ProvaService, ConfiguracaoProva
+from backend.services.revisao_service import RevisaoService, RevisaoQuestao, FonteBibliografica
+from backend.services.prova_individual_service import ProvaIndividualService, ConfiguracaoProvaIndividual
 
 # Tenta importar o gerador de IA (pode falhar se LLM não configurado)
 try:
@@ -38,8 +49,19 @@ os.makedirs(settings.LOG_DIR, exist_ok=True)
 os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
 os.makedirs(settings.PDF_OUTPUT_DIR, exist_ok=True)
 
-# Serviço de provas
+# Serviços
 prova_service = ProvaService()
+revisao_service = RevisaoService()
+prova_individual_service = ProvaIndividualService()
+
+
+# Filtro Jinja2 customizado para obter basename de path
+@app.template_filter('basename')
+def basename_filter(path):
+    """Retorna o nome base de um caminho de arquivo."""
+    if path:
+        return os.path.basename(path)
+    return ''
 
 
 # =============================================================================
@@ -187,11 +209,237 @@ def download_pdf(tipo, filename):
 def sobre():
     """Página sobre o projeto."""
     info = {
-        "versao": "1.0.0",
+        "versao": "2.0.0",
         "ambiente": settings.FLASK_ENV if hasattr(settings, 'FLASK_ENV') else 'development',
         "diagramas_dir": settings.DIAGRAMAS_DIR
     }
     return render_template("sobre.html", info=info)
+
+
+# =============================================================================
+# NOVAS ROTAS - FLUXO DE REVISÃO
+# =============================================================================
+
+@app.route("/banco-questoes")
+def banco_questoes():
+    """Página do banco de questões do professor."""
+    tab = request.args.get("tab", "todas")
+    materia = request.args.get("materia")
+    
+    # Obter questões conforme a tab
+    if tab == "pendentes":
+        questoes = revisao_service.obter_questoes_pendentes(materia=materia)
+    elif tab == "aprovadas":
+        questoes = revisao_service.obter_questoes_aprovadas(materia=materia)
+    else:
+        # Todas as questões
+        pendentes = revisao_service.obter_questoes_pendentes(materia=materia)
+        aprovadas = revisao_service.obter_questoes_aprovadas(materia=materia)
+        questoes = pendentes + aprovadas
+    
+    # Estatísticas
+    estatisticas = revisao_service.obter_estatisticas()
+    
+    return render_template(
+        "banco_questoes.html",
+        questoes=questoes,
+        estatisticas=estatisticas,
+        tab=tab
+    )
+
+
+@app.route("/revisar/<questao_id>")
+def revisar_questao(questao_id):
+    """Página de revisão de uma questão específica."""
+    questao = revisao_service.obter_questao(questao_id)
+    
+    if not questao:
+        return redirect(url_for('banco_questoes'))
+    
+    revisoes = revisao_service.obter_revisoes(questao_id)
+    
+    return render_template(
+        "revisao_questao.html",
+        questao=questao,
+        revisoes=revisoes
+    )
+
+
+@app.route("/revisar/<questao_id>/salvar", methods=["POST"])
+def salvar_revisao(questao_id):
+    """Salva a revisão de uma questão."""
+    acao = request.form.get("acao")
+    comentarios = request.form.get("comentarios", "")
+    sugestoes = request.form.get("sugestoes", "")
+    nota_qualidade = request.form.get("nota_qualidade")
+    
+    # Checklist de avaliação
+    precisao_cientifica = request.form.get("precisao_cientifica") == "true"
+    clareza_enunciado = request.form.get("clareza_enunciado") == "true"
+    adequacao_nivel = request.form.get("adequacao_nivel") == "true"
+    
+    # Fontes bibliográficas
+    fontes_raw = request.form.getlist("fontes[]")
+    fontes = []
+    for fonte_json in fontes_raw:
+        try:
+            fonte = json.loads(fonte_json)
+            fontes.append(fonte)
+        except:
+            pass
+    
+    if acao == "aprovar":
+        resultado = revisao_service.aprovar_questao(
+            questao_id=questao_id,
+            comentarios=comentarios,
+            fontes=fontes
+        )
+    elif acao == "rejeitar":
+        resultado = revisao_service.rejeitar_questao(
+            questao_id=questao_id,
+            motivo=comentarios,
+            sugestoes=sugestoes
+        )
+    elif acao == "corrigir":
+        resultado = revisao_service.solicitar_correcoes(
+            questao_id=questao_id,
+            correcoes=sugestoes,
+            comentarios=comentarios
+        )
+    else:
+        return redirect(url_for('revisar_questao', questao_id=questao_id))
+    
+    return redirect(url_for('banco_questoes'))
+
+
+@app.route("/questao/gerar-e-revisar", methods=["POST"])
+def gerar_e_revisar():
+    """Gera uma questão e redireciona para revisão."""
+    # Obtém dados do formulário
+    materia = request.form.get("materia", "fisica")
+    topico = request.form.get("topico", "")
+    dificuldade = request.form.get("dificuldade", "medio")
+    modo = request.form.get("modo", "simples")
+    com_diagrama = request.form.get("com_diagrama") == "on"
+    observacoes = request.form.get("observacoes", "").strip()
+    
+    try:
+        # Gerar questão
+        if modo == "ia" and IA_DISPONIVEL:
+            from backend.gerador_ia import gerar_questao_ia
+            questao = gerar_questao_ia(materia, topico, dificuldade, observacoes)
+        else:
+            questao = gerar_questao_simples(materia, topico, dificuldade, com_diagrama)
+        
+        # Adicionar metadados
+        questao["materia"] = materia
+        questao["topico"] = topico
+        questao["dificuldade"] = dificuldade
+        questao["observacoes_professor"] = observacoes
+        
+        # Adicionar ao fluxo de revisão
+        questao_id = revisao_service.adicionar_questao_para_revisao(questao)
+        
+        # Redirecionar para página de revisão
+        return redirect(url_for('revisar_questao', questao_id=questao_id))
+        
+    except Exception as e:
+        return render_template("index.html", erro=str(e))
+
+
+# =============================================================================
+# NOVAS ROTAS - MONTAGEM DE PROVAS INDIVIDUAIS
+# =============================================================================
+
+@app.route("/montar-prova")
+def montar_prova():
+    """Página para montar uma prova a partir de questões selecionadas."""
+    # Obter IDs das questões da query string (vindas do banco de questões)
+    questoes_ids = request.args.get("questoes", "").split(",")
+    questoes_ids = [q.strip() for q in questoes_ids if q.strip()]
+    
+    # Buscar as questões
+    questoes = []
+    for questao_id in questoes_ids:
+        questao = revisao_service.obter_questao(questao_id)
+        if questao:
+            questoes.append(questao)
+    
+    return render_template("montar_prova.html", questoes=questoes)
+
+
+@app.route("/gerar-provas-individuais", methods=["POST"])
+def gerar_provas_individuais():
+    """Gera provas individuais para cada aluno."""
+    # Obter dados do formulário
+    titulo = request.form.get("titulo", "Prova")
+    instituicao = request.form.get("instituicao", "")
+    tempo_limite = request.form.get("tempo_limite")
+    quantidade_alunos = int(request.form.get("quantidade_alunos", 30))
+    
+    # Questões selecionadas
+    questoes_ids = request.form.getlist("questoes[]")
+    
+    # Opções de embaralhamento
+    embaralhar_questoes = request.form.get("embaralhar_questoes") == "on"
+    embaralhar_alternativas = request.form.get("embaralhar_alternativas") == "on"
+    incluir_campo_nome = request.form.get("incluir_campo_nome") == "on"
+    incluir_campo_matricula = request.form.get("incluir_campo_matricula") == "on"
+    
+    # Instruções
+    instrucoes_text = request.form.get("instrucoes", "")
+    instrucoes = [i.strip() for i in instrucoes_text.split("\n") if i.strip()] if instrucoes_text else None
+    
+    try:
+        # Configurar geração
+        config = ConfiguracaoProvaIndividual(
+            titulo=titulo,
+            questoes_ids=questoes_ids,
+            quantidade_alunos=quantidade_alunos,
+            embaralhar_questoes=embaralhar_questoes,
+            embaralhar_alternativas=embaralhar_alternativas,
+            instituicao=instituicao if instituicao else None,
+            instrucoes=instrucoes,
+            tempo_limite_min=int(tempo_limite) if tempo_limite else None,
+            incluir_campo_nome=incluir_campo_nome,
+            incluir_campo_matricula=incluir_campo_matricula,
+            gerar_pdf=True,
+            gerar_zip=True
+        )
+        
+        # Gerar provas
+        resultado = prova_individual_service.gerar_provas_individuais(config)
+        
+        if resultado.status == "erro":
+            return render_template(
+                "montar_prova.html",
+                questoes=[],
+                erro=resultado.erro
+            )
+        
+        return render_template("provas_individuais.html", resultado=resultado)
+        
+    except Exception as e:
+        return render_template(
+            "montar_prova.html",
+            questoes=[],
+            erro=str(e)
+        )
+
+
+@app.route("/download/zip/<path:filename>")
+def download_zip(filename):
+    """Rota para download de arquivos ZIP."""
+    try:
+        directory = os.path.join(settings.OUTPUT_DIR, "provas_individuais")
+        return send_from_directory(
+            directory,
+            filename,
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 404
 
 
 # =============================================================================
@@ -426,6 +674,175 @@ def health_check():
         "status": "healthy",
         "ambiente": settings.FLASK_ENV if hasattr(settings, 'FLASK_ENV') else 'development'
     })
+
+
+# =============================================================================
+# NOVAS APIs - FLUXO DE REVISÃO E PROVAS INDIVIDUAIS
+# =============================================================================
+
+@app.route("/api/questoes/pendentes", methods=["GET"])
+def api_questoes_pendentes():
+    """API para listar questões pendentes de revisão."""
+    materia = request.args.get("materia")
+    limite = int(request.args.get("limite", 50))
+    
+    questoes = revisao_service.obter_questoes_pendentes(materia=materia, limite=limite)
+    
+    return jsonify({
+        "questoes": questoes,
+        "total": len(questoes)
+    })
+
+
+@app.route("/api/questoes/aprovadas", methods=["GET"])
+def api_questoes_aprovadas():
+    """API para listar questões aprovadas."""
+    materia = request.args.get("materia")
+    limite = int(request.args.get("limite", 100))
+    
+    questoes = revisao_service.obter_questoes_aprovadas(materia=materia, limite=limite)
+    
+    return jsonify({
+        "questoes": questoes,
+        "total": len(questoes)
+    })
+
+
+@app.route("/api/questao/<questao_id>", methods=["GET"])
+def api_obter_questao(questao_id):
+    """API para obter uma questão específica."""
+    questao = revisao_service.obter_questao(questao_id)
+    
+    if not questao:
+        return jsonify({"erro": "Questão não encontrada"}), 404
+    
+    return jsonify(questao)
+
+
+@app.route("/api/questao/<questao_id>", methods=["DELETE"])
+def api_excluir_questao(questao_id):
+    """API para excluir uma questão."""
+    # Por enquanto apenas remove do cache
+    if questao_id in revisao_service._questoes_cache:
+        del revisao_service._questoes_cache[questao_id]
+        return jsonify({"sucesso": True})
+    
+    return jsonify({"erro": "Questão não encontrada"}), 404
+
+
+@app.route("/api/questao/<questao_id>/aprovar", methods=["POST"])
+def api_aprovar_questao(questao_id):
+    """API para aprovar uma questão."""
+    dados = request.get_json() or {}
+    
+    resultado = revisao_service.aprovar_questao(
+        questao_id=questao_id,
+        comentarios=dados.get("comentarios"),
+        fontes=dados.get("fontes")
+    )
+    
+    if resultado.get("sucesso"):
+        return jsonify(resultado)
+    return jsonify(resultado), 400
+
+
+@app.route("/api/questao/<questao_id>/rejeitar", methods=["POST"])
+def api_rejeitar_questao(questao_id):
+    """API para rejeitar uma questão."""
+    dados = request.get_json() or {}
+    
+    motivo = dados.get("motivo", "")
+    if not motivo:
+        return jsonify({"erro": "Motivo é obrigatório"}), 400
+    
+    resultado = revisao_service.rejeitar_questao(
+        questao_id=questao_id,
+        motivo=motivo,
+        sugestoes=dados.get("sugestoes")
+    )
+    
+    return jsonify(resultado)
+
+
+@app.route("/api/provas-individuais", methods=["POST"])
+def api_gerar_provas_individuais():
+    """
+    API para geração de provas individuais.
+    
+    Request Body:
+        {
+            "titulo": "Prova de Física",
+            "questoes_ids": ["id1", "id2", ...],
+            "quantidade_alunos": 30,
+            "embaralhar_questoes": true,
+            "embaralhar_alternativas": true,
+            "instituicao": "Escola XYZ"
+        }
+    
+    Response:
+        {
+            "lote_id": "...",
+            "provas_geradas": 30,
+            "caminho_zip": "...",
+            "gabarito_consolidado": {...}
+        }
+    """
+    dados = request.get_json()
+    
+    if not dados:
+        return jsonify({"erro": "Dados não fornecidos"}), 400
+    
+    if not dados.get("questoes_ids"):
+        return jsonify({"erro": "Nenhuma questão selecionada"}), 400
+    
+    try:
+        config = ConfiguracaoProvaIndividual(
+            titulo=dados.get("titulo", "Prova"),
+            questoes_ids=dados["questoes_ids"],
+            quantidade_alunos=dados.get("quantidade_alunos", 30),
+            embaralhar_questoes=dados.get("embaralhar_questoes", True),
+            embaralhar_alternativas=dados.get("embaralhar_alternativas", True),
+            instituicao=dados.get("instituicao"),
+            instrucoes=dados.get("instrucoes"),
+            tempo_limite_min=dados.get("tempo_limite_min"),
+            gerar_pdf=dados.get("gerar_pdf", True),
+            gerar_zip=dados.get("gerar_zip", True)
+        )
+        
+        resultado = prova_individual_service.gerar_provas_individuais(config)
+        
+        return jsonify({
+            "lote_id": resultado.lote_id,
+            "titulo": resultado.titulo,
+            "provas_geradas": resultado.provas_geradas,
+            "tempo_geracao_seg": resultado.tempo_geracao_seg,
+            "caminho_zip": resultado.caminho_zip,
+            "gabarito_consolidado": resultado.gabarito_consolidado,
+            "status": resultado.status,
+            "erro": resultado.erro
+        })
+        
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+
+@app.route("/api/lotes-provas", methods=["GET"])
+def api_listar_lotes():
+    """API para listar lotes de provas gerados."""
+    limite = int(request.args.get("limite", 20))
+    lotes = prova_individual_service.listar_lotes(limite=limite)
+    
+    return jsonify({
+        "lotes": lotes,
+        "total": len(lotes)
+    })
+
+
+@app.route("/api/estatisticas/revisao", methods=["GET"])
+def api_estatisticas_revisao():
+    """API para obter estatísticas do fluxo de revisão."""
+    estatisticas = revisao_service.obter_estatisticas()
+    return jsonify(estatisticas)
 
 
 # =============================================================================
